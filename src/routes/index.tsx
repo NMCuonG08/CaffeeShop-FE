@@ -11,6 +11,7 @@ import AuthLogInPage from '../pages/auth/AuthLogInPage';
 import AdminLayout from '@/layouts/AdminLayout';
 import ListProductPage from '@/pages/admin/ListProductPage';
 import AnalyticsPage from '@/pages/admin/AnalyticsPage';
+import CheckoutPage from '@/pages/checkout/CheckoutPage';
 // import Login from '../pages/Login';
 // import ProductDetail from '../pages/ProductDetail';
 
@@ -20,6 +21,14 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
+    ],
+    errorElement: <NotFound />,
+  },
+  {
+    path: '/checkout',
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <CheckoutPage /> },
     ],
     errorElement: <NotFound />,
   },

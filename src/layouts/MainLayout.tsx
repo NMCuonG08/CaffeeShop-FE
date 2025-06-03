@@ -12,6 +12,7 @@ import {
   X,
   Coffee
 } from 'lucide-react';
+import Breadcrumbs from '@/components/common/Breadcrumbs';
 
 const MainLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -91,10 +92,18 @@ const MainLayout: React.FC = () => {
               {/* User Menu */}
               {user ? (
                 <div className="relative group">
-                  <button className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
-                    <User className="h-5 w-5" />
+                  <span className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 transition-colors">
+                    { user.picture ? (
+                      <img 
+                        src={user.picture} 
+                        alt={user.username} 
+                        className="w-8 h-8 rounded-full"
+                      />
+                    ) : (
+                      <User className="h-6 w-6" />
+                    )}
                     <span className="hidden sm:block text-sm font-medium">{user.username}</span>
-                  </button>
+                  </span>
                   
                   {/* Dropdown Menu */}
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
@@ -172,6 +181,7 @@ const MainLayout: React.FC = () => {
 
       {/* Main Content */}
       <main className="flex-1">
+        <Breadcrumbs />
         <Outlet />
       </main>
 

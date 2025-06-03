@@ -30,7 +30,7 @@ export default function AuthLogInPage() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      showSuccess(`Chào mừng ${user.name}!`);
+      showSuccess(`Chào mừng trở lại website!`);
       navigate('/');
     }
   }, [isAuthenticated, user, navigate]);
