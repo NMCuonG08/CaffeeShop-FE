@@ -1,5 +1,4 @@
-// features/product/productSelectors.ts
-import { RootState } from '../../store';
+import { RootState } from '@/store';
 
 export const selectProducts = (state: RootState) => state.product.products;
 export const selectLoading = (state: RootState) => state.product.loading;

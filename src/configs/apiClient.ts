@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: 'http://localhost:3333',
-  timeout: 10000,                      
+  timeout: 30000,                      
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,12 +16,16 @@ const getTokenFromPersist = () => {
     if (persistData) {
       const parsedData = JSON.parse(persistData);
       
-     
       if (parsedData.token) {
-        
         const token = JSON.parse(parsedData.token);
         return token;
       }
+    }
+    
+    // Fallback: Check direct localStorage token (for OAuth callbacks)
+    const directToken = localStorage.getItem('token');
+    if (directToken) {
+      return directToken;
     }
     
     return null;
@@ -31,17 +35,29 @@ const getTokenFromPersist = () => {
   }
 };
 
+// Helper function để set token manually
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    apiClient.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    console.log('🔑 Token set manually:', token ? 'Present' : 'None');
+  } else {
+    delete apiClient.defaults.headers.common['Authorization'];
+    console.log('🚫 Token cleared');
+  }
+};
+
 apiClient.interceptors.request.use(
   (config) => {
-    // Thêm token nếu có
-    const token = getTokenFromPersist();
-  
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    // Chỉ thêm token từ persist nếu chưa có Authorization header
+    if (!config.headers.Authorization) {
+      const token = getTokenFromPersist();
+      
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
     
-    console.log('Request with token:', token ? 'Token found' : 'No token');
+    console.log('Request with token:', config.headers.Authorization ? 'Token found' : 'No token');
     return config;
   },
   (error) => {
@@ -60,8 +76,9 @@ apiClient.interceptors.response.use(
     if (error.response?.status === 401) {
       // Xử lý unauthorized - clear persist store
       try {
-        localStorage.removeItem('persist:auth'); // hoặc key persist của bạn
-        // Hoặc dispatch logout action để clear store
+        localStorage.removeItem('persist:auth');
+        localStorage.removeItem('token'); // Clear direct token too
+        delete apiClient.defaults.headers.common['Authorization'];
         window.location.href = '/login';
       } catch (e) {
         console.error('Error clearing persist data:', e);

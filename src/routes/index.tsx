@@ -1,7 +1,7 @@
 // src/routes/index.tsx
 import { createBrowserRouter } from 'react-router-dom';
 import Home from '../pages/Home';
-import ProductList from '../pages/product/ProductList';
+import ProductList from '../pages/product/ProductListPage';
 import NotFound from '../pages/NotFound';
 
 import AuthCallback from '../features/auth/components/AuthCallback';
@@ -12,6 +12,7 @@ import AdminLayout from '@/layouts/AdminLayout';
 import ListProductPage from '@/pages/admin/ListProductPage';
 import AnalyticsPage from '@/pages/admin/AnalyticsPage';
 import CheckoutPage from '@/pages/checkout/CheckoutPage';
+import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 // import Login from '../pages/Login';
 // import ProductDetail from '../pages/ProductDetail';
 
@@ -47,6 +48,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <ProductList /> },
+      { path: ':productId', element: <ProductDetailPage /> },
     ],
     errorElement: <NotFound />,
   },

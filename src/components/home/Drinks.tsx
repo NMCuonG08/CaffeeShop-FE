@@ -40,21 +40,28 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
     }
   };
 
-  const getProductEmoji = (category: string, type: string) => {
-    if (category.toLowerCase().includes('coffee')) return '☕';
-    if (category.toLowerCase().includes('tea')) return '🍵';
-    if (type.toLowerCase().includes('syrup')) return '🍯';
-    if (category.toLowerCase().includes('beverage')) return '🥤';
-    return '☕'; // default
-  };
+ const getProductEmoji = (category?: string, type?: string) => {
+  const categoryStr = category?.toLowerCase() || '';
+  const typeStr = type?.toLowerCase() || '';
 
-  const getGradientClass = (category: string, isPromo: boolean) => {
-    if (isPromo) return 'from-red-400 to-pink-500';
-    if (category.toLowerCase().includes('coffee')) return 'from-amber-400 to-orange-500';
-    if (category.toLowerCase().includes('tea')) return 'from-green-400 to-emerald-500';
-    if (category.toLowerCase().includes('add-on')) return 'from-purple-400 to-pink-500';
-    return 'from-blue-400 to-cyan-500';
-  };
+  if (categoryStr.includes('coffee')) return '☕';
+  if (categoryStr.includes('tea')) return '🍵';
+  if (typeStr.includes('syrup')) return '🍯';
+  if (categoryStr.includes('beverage')) return '🥤';
+  return '☕'; // default
+};
+
+
+  const getGradientClass = (category?: string, isPromo?: boolean) => {
+  const categoryStr = category?.toLowerCase() || '';
+
+  if (isPromo) return 'from-red-400 to-pink-500';
+  if (categoryStr.includes('coffee')) return 'from-amber-400 to-orange-500';
+  if (categoryStr.includes('tea')) return 'from-green-400 to-emerald-500';
+  if (categoryStr.includes('add-on')) return 'from-purple-400 to-pink-500';
+  return 'from-blue-400 to-cyan-500';
+};
+
 
   const handleAddToCart = async (product: Product) => {
    setIsAdding(true);

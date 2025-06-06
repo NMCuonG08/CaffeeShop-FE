@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
+import { useProductName } from "@/features/product/hooks/useProduct";
 
 const breadcrumbNameMap = {
   "/": "Trang chủ",
@@ -14,6 +15,34 @@ const breadcrumbNameMap = {
   "/orders": "Đơn hàng",
 };
 
+// Component riêng để handle product breadcrumb
+const ProductBreadcrumb = ({ productId, isLast, to }: { 
+  productId: string; 
+  isLast: boolean; 
+  to: string; 
+}) => {
+  const { product, loading } = useProductName(Number(productId));
+  
+  const displayName = loading ? "Loading..." : (product?.product || productId);
+
+  if (isLast) {
+    return (
+      <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg transform">
+        {displayName}
+      </span>
+    );
+  }
+
+  return (
+    <Link 
+      to={to}
+      className="text-amber-700 hover:text-white hover:bg-gradient-to-r hover:from-amber-500 hover:to-orange-500 transition-all duration-300 px-3 py-2 rounded-lg font-medium shadow-sm hover:shadow-lg transform hover:scale-105 border border-transparent hover:border-amber-300"
+    >
+      {displayName}
+    </Link>
+  );
+};
+
 function Breadcrumbs() {
   const location = useLocation();
   const pathnames = location.pathname.split("/").filter((x) => x);
@@ -21,6 +50,11 @@ function Breadcrumbs() {
   if (location.pathname === '/') {
     return null;
   }
+
+  // Helper function để check nếu path segment là product ID
+  const isProductId = (value: string, index: number) => {
+    return pathnames[index - 1] === 'products' && !isNaN(Number(value));
+  };
 
   return (
     <nav className="bg-gradient-to-r from-amber-50 to-orange-50 border-b border-amber-200 py-4 px-4 sm:px-6 lg:px-8 shadow-sm">
@@ -44,13 +78,19 @@ function Breadcrumbs() {
 
             return (
               <li key={to} className="flex items-center">
-                {/* Separator với animation */}
+                {/* Separator */}
                 <div className="mx-2 p-1">
                   <ChevronRight className="h-4 w-4 text-amber-500 animate-pulse" />
                 </div>
                 
                 {/* Breadcrumb Link or Text */}
-                {isLast ? (
+                {isProductId(value, index) ? (
+                  <ProductBreadcrumb 
+                    productId={value} 
+                    isLast={isLast} 
+                    to={to} 
+                  />
+                ) : isLast ? (
                   <span className="bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-lg transform">
                     {breadcrumbNameMap[to] || value}
                   </span>

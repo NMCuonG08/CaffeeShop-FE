@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { type Product } from '@/types/product.type';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { toast } from 'react-hot-toast'; 
+import { Link } from 'react-router-dom';
 
 interface ProductCardProps {
   product: Product;
@@ -59,6 +60,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full flex flex-col">
       <div className="relative h-48 overflow-hidden">
+        <Link to={`/products/${product.product_id}`} className="block h-full">
         <img 
           src={product.product_image_cover || "https://dummyimage.com/150x150/cccccc/000000&text=Coffee"} 
           alt={product.product}
@@ -67,6 +69,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             e.currentTarget.src = '/placeholder-image.png';
           }}
         />
+        
+        </Link>
         {product.new_product_yn && (
           <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase">
             New

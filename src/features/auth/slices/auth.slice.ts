@@ -1,11 +1,11 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import {apiClient} from "@/configs";
+import apiClient, { setAuthToken } from '@/configs/apiClient';
+
 import type { FormSignUp } from "@/types";
 
 interface User {
   id: string;
   email: string;
-  name: string;
   firstName?: string;
   lastName?: string;
   picture?: string;
@@ -118,6 +118,39 @@ export const getCurrentUser = createAsyncThunk(
   }
 );
 
+
+export const getUserByToken = createAsyncThunk(
+  "auth/getUserByToken",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      console.log('🚀 Calling getUserByToken with:', token);
+      
+      // Set token for this request
+      setAuthToken(token);
+      
+      const response = await apiClient.get("/user/me");
+      console.log('✅ API response:', response.data);
+      
+      if (!response.data?.data) {
+        throw new Error("User data not found in response");
+      }
+      
+      return { 
+        user: response.data.data, 
+        token 
+      };
+    } catch (error) {
+      console.error('❌ getUserByToken error:', error);
+      
+      // Clear token on error
+      setAuthToken(null);
+      
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch user by token"
+      );
+    }
+  }
+);
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -231,6 +264,23 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(getCurrentUser.rejected, (state) => {
+        state.loading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(getUserByToken.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(getUserByToken.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload.user;
+        state.token = action.payload.token;
+        state.isAuthenticated = true;
+        
+        state.error = null;
+      })
+      .addCase(getUserByToken.rejected, (state) => {
         state.loading = false;
         state.user = null;
         state.token = null;

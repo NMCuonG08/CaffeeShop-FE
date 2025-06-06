@@ -6,6 +6,7 @@ import {
   register,
   logout as logoutAction,
   getCurrentUser,
+  getUserByToken,
   clearError,
   clearAuth,
   restoreAuth,
@@ -75,6 +76,19 @@ export const useAuth = () => {
     }
   }, [dispatch]);
 
+
+  const handleGetCurrentUserByToken = useCallback(
+    async (token: string) => {
+      try {
+        const result = await dispatch(getUserByToken(token)).unwrap();
+        return { success: true, data: result };
+      } catch (error) {
+        return { success: false, error: error as string };
+      }
+    },
+    [dispatch]
+  );
+
   // Clear error
   const handleClearError = useCallback(() => {
     dispatch(clearError());
@@ -107,7 +121,7 @@ export const useAuth = () => {
     logout: handleLogout,
     getCurrentUser: handleGetCurrentUser,
     clearError: handleClearError,
-
+    getCurrentUserByToken: handleGetCurrentUserByToken,
     // Utilities
     hasRole,
     isAdmin,
