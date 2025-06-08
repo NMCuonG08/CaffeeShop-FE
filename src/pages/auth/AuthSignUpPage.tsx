@@ -16,7 +16,7 @@ export default function AuthSignUpPage() {
 
   const handleSubmitData = (data: FormSignUp) => {
     console.log("SignUp data:", data);
-    alert("Đăng ký thành công");
+    showSuccess("Đăng ký thành công");
     dispatch(registerUser(data));
   };
 
@@ -32,7 +32,7 @@ export default function AuthSignUpPage() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      showSuccess(`Chào mừng ${user.name}! Đăng ký thành công.`);
+      showSuccess(`Chào mừng bạn tới website! Đăng ký thành công.`);
       navigate('/'); // Redirect về home
     }
   }, [isAuthenticated, user, navigate]);

@@ -3,26 +3,63 @@ import { useProduct } from '@/features/product/hooks/useProduct';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import FeedBackList from '@/features/product/components/FeedBackList';
 import { useParams } from 'react-router-dom';
-import { 
-  HeartIcon, 
-  ShareIcon, 
-  ShoppingCartIcon, 
+import {
+  HeartIcon,
+  ShareIcon,
+  ShoppingCartIcon,
   StarIcon,
   TruckIcon,
   ShieldCheckIcon,
   ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
+import { showSuccess } from '@/components';
+import { useCart } from '@/features/cart/hooks/useCart';
 
 export const ProductDetail = () => {
   const { productId } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
-  
+  const [isAdding, setIsAdding] = useState(false);
   const productIdNumber = productId ? Number(productId) : 0;
   const { product, loading, error } = useProduct(productIdNumber);
   const { isAuthenticated, user } = useAuth();
+
+
+
+
+  const { addToCart, getCartItemById } = useCart();
+  // const cartItem = getCartItemById(product.product_id.toString());
+  // const currentQuantityInCart = cartItem?.quantity || 0;
+
+
+
+  const handleAddToCart = async () => {
+
+    setIsAdding(true);
+    try {
+      await addToCart({
+        productId: product.product_id,
+        quantity: quantity,
+        productDetails: {
+          name: product.product,
+          price: product.current_retail_price,
+          imageUrl: product.product_image_cover,
+          maxQuantity: 10
+        }
+      });
+
+      // showSuccess('Product added to cart successfully!');
+      setQuantity(1);
+    } catch (error) {
+      toast.error('Failed to add product to cart');
+      console.error('Add to cart error:', error);
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
 
   if (loading) {
     return (
@@ -71,7 +108,7 @@ export const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-      
+
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Main Product Section */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
@@ -79,16 +116,16 @@ export const ProductDetail = () => {
             {/* Image Section */}
             <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-8">
               <div className="aspect-square">
-                <img 
-                  src={product.product_image_cover} 
-                  alt={product.product} 
+                <img
+                  src={product.product_image_cover}
+                  alt={product.product}
                   className="w-full h-full object-cover rounded-2xl shadow-lg"
                 />
               </div>
-              
+
               {/* Action Buttons */}
               <div className="absolute top-4 right-4 flex flex-col gap-2">
-                <button 
+                <button
                   onClick={() => setIsFavorite(!isFavorite)}
                   className="p-3 bg-white/90 backdrop-blur-sm rounded-full shadow-lg hover:bg-white transition-all duration-200"
                 >
@@ -110,8 +147,12 @@ export const ProductDetail = () => {
                     🔥 PROMO
                   </span>
                 </div>
+                
               )}
+           
+              
             </div>
+            
 
             {/* Product Info */}
             <div className="p-8 lg:p-12">
@@ -178,14 +219,14 @@ export const ProductDetail = () => {
                 <div className="flex items-center gap-4">
                   <span className="font-medium text-gray-700">Quantity:</span>
                   <div className="flex items-center border border-gray-300 rounded-lg">
-                    <button 
+                    <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
                       className="px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
                       -
                     </button>
                     <span className="px-4 py-2 font-medium">{quantity}</span>
-                    <button 
+                    <button
                       onClick={() => setQuantity(quantity + 1)}
                       className="px-4 py-2 hover:bg-gray-100 transition-colors"
                     >
@@ -194,7 +235,9 @@ export const ProductDetail = () => {
                   </div>
                 </div>
 
-                <button className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3">
+                <button
+                  onClick={handleAddToCart}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3">
                   <ShoppingCartIcon className="w-6 h-6" />
                   Add to Cart
                 </button>
@@ -216,7 +259,7 @@ export const ProductDetail = () => {
         </div>
 
         {/* Reviews Section */}
-        <FeedBackList 
+        <FeedBackList
           productId={productIdNumber}
           feedbacks={product.feedbacks || []}
           isAuthenticated={isAuthenticated}

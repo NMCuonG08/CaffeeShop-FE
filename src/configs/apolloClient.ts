@@ -32,9 +32,8 @@ const httpLink = createHttpLink({
   uri: 'http://localhost:3333/graphql', 
 });
 
-// ✅ WebSocket Link với đúng URL và debug logs
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://localhost:3333/graphql', // ✅ Cùng endpoint với HTTP
+  url: 'ws://localhost:3333/graphql',
   connectionParams: () => {
     const token = getTokenFromPersist();
     console.log('🔑 WebSocket connecting with token:', token ? 'Present' : 'Missing');

@@ -3,6 +3,7 @@ import { type Product } from '@/types/product.type';
 import { useCart } from '@/features/cart/hooks/useCart';
 import { toast } from 'react-hot-toast'; 
 import { Link } from 'react-router-dom';
+import { showSuccess } from '@/components';
 
 interface ProductCardProps {
   product: Product;
@@ -33,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         }
       });
       
-      toast.success(`Added ${quantity} ${product.product} to cart!`);
+      showSuccess('Product added to cart successfully!');
       setQuantity(1); // Reset quantity
     } catch (error) {
       toast.error('Failed to add product to cart');
@@ -134,7 +135,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center border rounded-lg">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-1 text-gray-100 hover:bg-gray-100 transition-colors"
+              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors"
               disabled={isAdding || loading}
             >
               -
@@ -144,7 +145,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className="px-3 py-1 text-gray-100 hover:bg-gray-100 transition-colors"
+              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors"
               disabled={isAdding || loading}
             >
               +

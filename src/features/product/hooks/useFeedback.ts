@@ -7,217 +7,29 @@ import {
 type  QueryHookOptions,
  type MutationHookOptions 
 } from '@apollo/client';
-import { gql } from '@apollo/client';
 
-// Types
-export interface Feedback {
-  id: number;
-  productId: number;
-  userId: number;
-  type: 'REVIEW' | 'COMPLAINT' | 'SUGGESTION';
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
-  rating?: number;
-  title: string;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-  user?: {
-    id: number;
-    name: string;
-    email: string;
-  };
-}
+import {
+type  Feedback,
+ type CreateFeedbackInput,
+ type UpdateFeedbackInput
+} from '@/types';
 
-export interface CreateFeedbackInput {
-  productId: number;
-  type: 'REVIEW' | 'COMPLAINT' | 'SUGGESTION';
-  rating?: number;
-  title: string;
-  content: string;
-}
 
-export interface UpdateFeedbackInput {
-  type?: 'REVIEW' | 'COMPLAINT' | 'SUGGESTION';
-  rating?: number;
-  title?: string;
-  content?: string;
-}
+import {
+   GET_FEEDBACKS,
+  CREATE_FEEDBACK,
+  UPDATE_FEEDBACK,
+   DELETE_FEEDBACK,
+  FEEDBACK_CREATED_SUBSCRIPTION,
+  FEEDBACK_UPDATED_SUBSCRIPTION,
+  FEEDBACK_DELETED_SUBSCRIPTION,
+  FEEDBACK_STATUS_CHANGED_SUBSCRIPTION
+} from '@/queries';
 
-// GraphQL Queries & Mutations
-const GET_FEEDBACKS = gql`
-  query GetFeedbacks(
-    $productId: Float
-    $userId: Float
-    $type: String
-    $status: String
-    $minRating: Float
-    $maxRating: Float
-  ) {
-    feedbacks(
-      productId: $productId
-      userId: $userId
-      type: $type
-      status: $status
-      minRating: $minRating
-      maxRating: $maxRating
-    ) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      content
-      content
-      createdAt
-      updatedAt
-      user {
-        id
-        lastName
-        email
-        firstName
-        picture
-      }
-    }
-  }
-`;
 
-const GET_FEEDBACKS_BY_PRODUCT = gql`
-  query GetFeedbacksByProduct($productId: Float!) {
-    feedbacksByProduct(productId: $productId) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      title
-      content
-      createdAt
-      updatedAt
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
 
-const CREATE_FEEDBACK = gql`
-  mutation($createFeedbackInput: CreateFeedbackInput!) {
-  createFeedback(createFeedbackInput: $createFeedbackInput) {
-    content,
-    rating,
-    type,
-    productId
-  }
-}
-`;
 
-const UPDATE_FEEDBACK = gql`
-  mutation UpdateFeedback($id: Float!, $updateFeedbackInput: UpdateFeedbackInput!) {
-    updateFeedback(id: $id, updateFeedbackInput: $updateFeedbackInput) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      title
-      content
-      createdAt
-      updatedAt
-    }
-  }
-`;
 
-const DELETE_FEEDBACK = gql`
-  mutation RemoveFeedback($id: Float!) {
-    removeFeedback(id: $id) {
-      id
-    }
-  }
-`;
-
-// Subscriptions
-const FEEDBACK_CREATED_SUBSCRIPTION = gql`
-  subscription FeedbackCreated($productId: Float!) {
-    feedbackCreated(productId: $productId) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      content
-      createdAt
-      updatedAt
-      user {
-        id
-        firstName
-        lastName
-        email
-        picture
-      }
-    }
-  }
-`;
-const FEEDBACK_UPDATED_SUBSCRIPTION = gql`
-  subscription FeedbackUpdated($productId: Float) {
-    feedbackUpdated(productId: $productId) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      title
-      content
-      createdAt
-      updatedAt
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
-
-const FEEDBACK_DELETED_SUBSCRIPTION = gql`
-  subscription FeedbackDeleted($productId: Float) {
-    feedbackDeleted(productId: $productId) {
-      id
-      productId
-      userId
-    }
-  }
-`;
-
-const FEEDBACK_STATUS_CHANGED_SUBSCRIPTION = gql`
-  subscription FeedbackStatusChanged($productId: Float) {
-    feedbackStatusChanged(productId: $productId) {
-      id
-      productId
-      userId
-      type
-      status
-      rating
-      title
-      content
-      createdAt
-      updatedAt
-      user {
-        id
-        name
-        email
-      }
-    }
-  }
-`;
-
-// Custom Hook for Feedback with Real-time Updates
 export function useFeedback(options?: {
   productId?: number;
   userId?: number;

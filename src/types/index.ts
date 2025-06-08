@@ -1,3 +1,6 @@
 export * from './auth.type'
 export * from './product.type'
 export * from './feedback.type'
+export * from './payment.type'
+export * from './user-info.type'
+export * from './user.type'

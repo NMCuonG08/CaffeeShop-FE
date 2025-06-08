@@ -13,7 +13,6 @@ const GET_PRODUCT = gql`
       promo_yn
       current_retail_price
       current_wholesale_price
-      
       feedbacks {
         id
         user {

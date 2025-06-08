@@ -13,6 +13,8 @@ import ListProductPage from '@/pages/admin/ListProductPage';
 import AnalyticsPage from '@/pages/admin/AnalyticsPage';
 import CheckoutPage from '@/pages/checkout/CheckoutPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
+import OrderSuccessPage from '@/pages/checkout/OrderSuccesspage';
+import OrderFailedPage from '@/pages/checkout/OrderFailedPage';
 // import Login from '../pages/Login';
 // import ProductDetail from '../pages/ProductDetail';
 
@@ -67,7 +69,16 @@ const router = createBrowserRouter([
         errorElement: <NotFound />,
       },
     ],
-  }
+  },
+  {
+    path: '/payment',
+    element: <MainLayout />,
+    children: [
+       { path: 'success', element: <OrderSuccessPage/> },
+      { path: 'failed', element: <OrderFailedPage /> },
+    ],
+    errorElement: <NotFound />,
+  },
 ])
 
 

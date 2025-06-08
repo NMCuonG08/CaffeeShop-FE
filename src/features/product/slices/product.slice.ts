@@ -14,6 +14,8 @@ interface ProductState {
 interface FetchProductsParams {
   page?: number;
   limit?: number;
+  sortBy?: string;
+  category?: string;
 }
 
 
@@ -31,7 +33,7 @@ export const fetchProducts = createAsyncThunk(
   'product/fetchProducts',
   async (params: FetchProductsParams) => {
     console.log('Fetching products with params:', params);
-    const products = await productAPI.getProducts( params);
+    const products = await productAPI.getProducts(params);
     return products;
   }
 );

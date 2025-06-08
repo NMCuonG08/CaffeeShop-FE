@@ -5,8 +5,10 @@ import OrderSummary from '@/features/payment/components/OrderSummary';
 import ShippingForm from '@/features/payment/components/ShippingForm';
 import PaymentMethods from '@/features/payment/components/PaymentMethods';
 import { type ShippingInfo, type PaymentMethod } from '@/features/payment/types/payment.type';
+import { useVNPayPayment } from '@/features/payment/hooks/useVNPayPayment';
 import { ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 // Import schema để validate
 const shippingSchema = z.object({
@@ -23,6 +25,8 @@ const shippingSchema = z.object({
 const CheckoutPage: React.FC = () => {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const { createPaymentUrl, isCreatingPayment, error: paymentError } = useVNPayPayment();
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: '',
@@ -56,27 +60,26 @@ const CheckoutPage: React.FC = () => {
     }
   };
 
-  const handlePlaceOrder = async () => {
-    // Clear previous errors
-    setValidationErrors([]);
+  const generateOrderId = () => {
+    return `ORDER_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  };
 
-    // Validate payment method
+  const handlePlaceOrder = async () => {
+    setValidationErrors([]);
     if (!selectedPayment) {
       setValidationErrors(['Vui lòng chọn phương thức thanh toán']);
       return;
     }
-
-    // Validate shipping info
+    
     if (!validateShippingInfo()) {
       return;
     }
 
     setIsProcessing(true);
-    
+
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      const orderId = generateOrderId();
+
       // Create order data
       const orderData = {
         items,
@@ -85,19 +88,45 @@ const CheckoutPage: React.FC = () => {
         subtotal: total,
         shippingFee,
         total: finalTotal,
-        orderId: Date.now().toString(),
+        orderId,
         createdAt: new Date()
       };
 
-      // Store order data for success page
-      localStorage.setItem('lastOrder', JSON.stringify(orderData));
-      
-      // Clear cart and redirect to success page
-      clearCart();
-      navigate('/order-success');
+      // Save order data to localStorage for later use
+      localStorage.setItem('pendingOrder', JSON.stringify(orderData));
+
+      if (selectedPayment?.id === 'vnpay') {
+        // Handle VNPay payment
+        const paymentData = {
+          orderId,
+          amount: finalTotal,
+          orderDescription: `Thanh toán đơn hàng ${orderId}`,
+          orderType: 'billpayment',
+          locale: 'vn',
+          currCode: 'VND'
+        };
+
+        const paymentUrl = await createPaymentUrl(paymentData);
+        console.log('Payment URL:', paymentUrl);
+        
+        if (paymentUrl) {
+          window.location.href = paymentUrl;
+        } else {
+          throw new Error(paymentError || 'Không thể tạo link thanh toán VNPay');
+        }
+      } else {
+        // Handle other payment methods (COD, etc.)
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        localStorage.setItem('lastOrder', JSON.stringify(orderData));
+        localStorage.removeItem('pendingOrder');
+        // clearCart();
+        navigate('/order-success');
+      }
     } catch (error) {
       console.error('Order failed:', error);
-      setValidationErrors(['Đặt hàng thất bại. Vui lòng thử lại.']);
+      const errorMessage = error instanceof Error ? error.message : 'Đặt hàng thất bại. Vui lòng thử lại.';
+      setValidationErrors([errorMessage]);
     } finally {
       setIsProcessing(false);
     }
@@ -167,8 +196,10 @@ const CheckoutPage: React.FC = () => {
               shippingFee={shippingFee}
               total={finalTotal}
               onPlaceOrder={handlePlaceOrder}
-              isProcessing={isProcessing}
+              isProcessing={isProcessing || isCreatingPayment}
               selectedPayment={selectedPayment}
+              isAuthenticated={isAuthenticated}
+              shippingInfo={shippingInfo}
             />
           </div>
         </div>

@@ -3,7 +3,11 @@ import { StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import {type FeedbackCardProps,type User } from '@/types';
 
-const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, index = 0 }) => {
+interface ExtendedFeedbackCardProps extends FeedbackCardProps {
+  isCurrentUser?: boolean;
+}
+
+const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, index = 0, isCurrentUser = false  }) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -77,8 +81,21 @@ const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, index = 0 }) => {
 
   return (
     <div 
-      className="group bg-gray-50 hover:bg-gray-100 rounded-2xl p-6 transition-all duration-200 border border-gray-200 hover:border-gray-300 hover:shadow-md"
+      className={`group rounded-2xl p-6 transition-all duration-200 border hover:shadow-md ${
+        isCurrentUser 
+          ? 'bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 ring-2 ring-blue-200' 
+          : 'bg-gray-50 hover:bg-gray-100 border-gray-200 hover:border-gray-300'
+      }`}
     >
+      {isCurrentUser && (
+        <div className="mb-3 flex items-center gap-2">
+          <span className="bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            Your Review
+          </span>
+        </div>
+      )}
+      
+      {/* Rest of the existing FeedbackCard code... */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-4">
           {/* Avatar Container */}

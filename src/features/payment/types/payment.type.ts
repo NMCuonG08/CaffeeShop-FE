@@ -22,10 +22,10 @@ export interface Order {
   shipping: ShippingInfo;
   paymentMethod: PaymentMethod;
   subtotal: number;
-  shippingFee: number;
+  shippingFee?: number;
   total: number;
-  status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered';
-  createdAt: Date;
+  status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered';
+  createdAt?: Date;
 }
 
 export interface CartItem {

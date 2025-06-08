@@ -9,10 +9,15 @@ const breadcrumbNameMap = {
   "/auth/login": "Đăng nhập",
   "/products": "Sản phẩm",
   "/products/shirts": "Áo sơ mi",
-  "/checkout": "Thanh toán",
+  "/checkout": "Chuẩn bị thanh toán",
   "/cart": "Giỏ hàng",
   "/profile": "Hồ sơ",
   "/orders": "Đơn hàng",
+  "/payment": "Thanh toán",
+   "/payment/success": "Thanh toán thành công",
+  "/payment/failed": "Thanh toán thất bại",
+  "/admin": "Quản trị",
+  "/admin/products": "Quản lý sản phẩm",
 };
 
 // Component riêng để handle product breadcrumb
