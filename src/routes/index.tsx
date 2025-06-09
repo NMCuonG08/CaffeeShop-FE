@@ -15,6 +15,7 @@ import CheckoutPage from '@/pages/checkout/CheckoutPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 import OrderSuccessPage from '@/pages/checkout/OrderSuccesspage';
 import OrderFailedPage from '@/pages/checkout/OrderFailedPage';
+import OrdersPage from '@/pages/OrdersPage';
 // import Login from '../pages/Login';
 // import ProductDetail from '../pages/ProductDetail';
 
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
+      { path: 'orders', element: <OrdersPage /> },
     ],
     errorElement: <NotFound />,
   },

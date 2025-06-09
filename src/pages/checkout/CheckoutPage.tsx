@@ -9,6 +9,9 @@ import { useVNPayPayment } from '@/features/payment/hooks/useVNPayPayment';
 import { ArrowLeft } from 'lucide-react';
 import { z } from 'zod';
 import { useAuth } from '@/features/auth/hooks/useAuth';
+import { useOrder } from '@/features/order/hooks/useOrder';
+import { useUserInfo } from '@/features/auth/hooks/useUserInfo';
+import { showSuccess } from '@/components';
 
 // Import schema để validate
 const shippingSchema = z.object({
@@ -25,8 +28,12 @@ const shippingSchema = z.object({
 const CheckoutPage: React.FC = () => {
   const { items, total, clearCart } = useCart();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth(); // Lấy thêm user info
   const { createPaymentUrl, isCreatingPayment, error: paymentError } = useVNPayPayment();
+  
+  // Lấy userInfo để check userInfoId
+  const { userInfo, loading: userInfoLoading, updateUserInfo } = useUserInfo(user?.id);
+  const { createOrder, creating } = useOrder();
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: '',
@@ -66,6 +73,12 @@ const CheckoutPage: React.FC = () => {
 
   const handlePlaceOrder = async () => {
     setValidationErrors([]);
+    
+    if (!isAuthenticated || !user?.id) {
+      setValidationErrors(['Vui lòng đăng nhập để đặt hàng']);
+      return;
+    }
+    
     if (!selectedPayment) {
       setValidationErrors(['Vui lòng chọn phương thức thanh toán']);
       return;
@@ -80,7 +93,41 @@ const CheckoutPage: React.FC = () => {
     try {
       const orderId = generateOrderId();
 
-      // Create order data
+      // Nếu chưa có userInfo, tạo/cập nhật userInfo trước
+      if (userInfo) {
+        console.log('Creating/updating user info...');
+        
+        const userInfoData = {
+          fullName: shippingInfo.fullName,
+          email: shippingInfo.email,
+          phone: shippingInfo.phone,
+          address: shippingInfo.address,
+          city: shippingInfo.city,
+          district: shippingInfo.district,
+          ward: shippingInfo.ward,
+        };
+
+        await updateUserInfo(userInfoData);
+      
+      }
+
+      // Tạo order data để gửi lên backend
+      const createOrderData = {
+        userId: user.id,
+        paymentType: selectedPayment.id === 'vnpay' ? 'VNPAY' : 'COD',
+        items: items.map(item => ({
+          productId: parseInt(item.id),
+          quantity: item.quantity,
+          unitPrice: item.price
+        })),
+       
+      };
+
+      // Gọi API tạo order
+      console.log('Creating order with data:', createOrderData);
+      const orderResult = await createOrder(createOrderData);
+      
+      // Order data để lưu localStorage (UI purpose)
       const orderData = {
         items,
         shippingInfo,
@@ -89,10 +136,10 @@ const CheckoutPage: React.FC = () => {
         shippingFee,
         total: finalTotal,
         orderId,
-        createdAt: new Date()
+        createdAt: new Date(),
+        backendOrderId: orderResult?.createOrder?.id // Lưu ID từ backend
       };
 
-      // Save order data to localStorage for later use
       localStorage.setItem('pendingOrder', JSON.stringify(orderData));
 
       if (selectedPayment?.id === 'vnpay') {
@@ -115,13 +162,14 @@ const CheckoutPage: React.FC = () => {
           throw new Error(paymentError || 'Không thể tạo link thanh toán VNPay');
         }
       } else {
-        // Handle other payment methods (COD, etc.)
+        // Handle COD payment
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         localStorage.setItem('lastOrder', JSON.stringify(orderData));
         localStorage.removeItem('pendingOrder');
-        // clearCart();
-        navigate('/order-success');
+        clearCart();
+        // navigate('/order-success');
+        showSuccess('Đặt hàng thành công!');
       }
     } catch (error) {
       console.error('Order failed:', error);

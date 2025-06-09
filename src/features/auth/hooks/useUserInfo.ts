@@ -43,8 +43,6 @@ mutation($updateUserInfoId: Int!, $updateUserInfo: UpdateUserInfoInput!){
 `;
 
 
-
-
 export const useUserInfo = (userId?: number) => {
   const { data, loading, error, refetch } = useQuery<{ userInfo: UserInfo }>(GET_USER_INFO, {
     variables: {userInfoId: userId }, // userId thay vì userInfoId

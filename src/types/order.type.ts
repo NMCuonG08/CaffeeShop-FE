@@ -1,4 +1,7 @@
-// Enums
+
+import type { Product } from './product.type';
+
+
 export enum PaymentType {
   COD = 'COD',
   VNPAY = 'VNPAY',
@@ -6,12 +9,12 @@ export enum PaymentType {
 }
 
 export enum OrderStatus {
-  PENDING = 'pending',
-  CONFIRMED = 'confirmed',
-  PROCESSING = 'processing',
-  SHIPPING = 'shipping',
-  DELIVERED = 'delivered',
-  CANCELLED = 'cancelled'
+  PENDING = 'PENDING',
+  CONFIRMED = 'CONFIRMED',
+  PROCESSING = 'PROCESSING',
+  SHIPPING = 'SHIPPING',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED'
 }
 
 
@@ -43,10 +46,9 @@ export interface Order {
 
 export interface CreateOrderRequest {
   userId?: number;
-  userInfoId: number;
   paymentType: PaymentType;
   items: CreateOrderItemRequest[];
-  notes?: string;
+  // notes?: string;
 }
 
 export interface CreateOrderItemRequest {
