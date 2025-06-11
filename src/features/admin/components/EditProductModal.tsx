@@ -6,6 +6,7 @@ import { X, Upload, Coffee, DollarSign, Package, Tag, FileText, Image as ImageIc
 import type { Product } from '@/types';
 
 // Zod validation schema
+// Zod validation schema
 const productSchema = z.object({
   product: z.string().min(1, 'Product name is required').max(100, 'Name must be less than 100 characters'),
   product_description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
@@ -15,11 +16,10 @@ const productSchema = z.object({
   product_type: z.string().optional(),
   unit_of_measure: z.string().optional(),
   current_wholesale_price: z.number().min(0, 'Wholesale price must be 0 or greater').optional(),
-  tax_exempt_yn: z.boolean().default(false),
-  promo_yn: z.boolean().default(false),
-  new_product_yn: z.boolean().default(true),
+  tax_exempt_yn: z.boolean(),
+  promo_yn: z.boolean(),
+  new_product_yn: z.boolean(),
 });
-
 type ProductFormData = z.infer<typeof productSchema>;
 
 interface EditProductModalProps {
@@ -65,21 +65,22 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   });
 
   // Populate form with product data when modal opens
+   // Populate form with product data when modal opens
   useEffect(() => {
     if (isOpen && product) {
-      // Flexible property mapping
-      const productName = product?.name || product?.product || product?.product_name || '';
-      const productDesc = product?.description || product?.product_description || '';
-      const productPrice = product?.price || product?.current_retail_price || 0;
-      const productCategory = product?.category || product?.product_category || '';
-      const productGroup = product?.product_group || '';
-      const productType = product?.product_type || '';
-      const unitMeasure = product?.unit_of_measure || '';
-      const wholesalePrice = product?.current_wholesale_price || 0;
-      const taxExempt = product?.tax_exempt_yn || false;
-      const promo = product?.promo_yn || false;
-      const newProduct = product?.new_product_yn || false;
-      const productImage = product?.image || product?.product_image_cover || '';
+      // Use the correct Product interface properties
+      const productName = product.product || '';
+      const productDesc = product.product_description || '';
+      const productPrice = product.current_retail_price || 0;
+      const productCategory = product.product_category || '';
+      const productGroup = product.product_group || '';
+      const productType = product.product_type || '';
+      const unitMeasure = product.unit_of_measure || '';
+      const wholesalePrice = product.current_wholesale_price || 0;
+      const taxExempt = product.tax_exempt_yn || false;
+      const promo = product.promo_yn || false;
+      const newProduct = product.new_product_yn || false;
+      const productImage = product.product_image_cover || '';
 
       // Set form values
       setValue('product', productName);
@@ -142,8 +143,8 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     }
   };
 
-  const handleFormSubmit = (data: ProductFormData) => {
-    const productId = product?.product_id || product?._id || product?.id;
+    const handleFormSubmit = (data: ProductFormData) => {
+    const productId = product?.product_id;
     onSubmit({
       ...data,
       imageFile: selectedFile || undefined,

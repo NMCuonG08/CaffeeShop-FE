@@ -21,8 +21,7 @@ const ListProduct = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   useEffect(() => {
     dispatch(fetchAdminProducts({ page: currentPage, limit }));
   }, [dispatch, currentPage, limit]);
@@ -96,15 +95,18 @@ const ListProduct = () => {
     setIsEditModalOpen(true);
   };
 
-  const handleEditProductSubmit = async (data: Product) => {
+    const handleEditProductSubmit = async (data: ProductFormData & { product_id?: string; imageFile?: File }) => {
     try {
       setEditLoading(true);
 
       const formData = new FormData();
       
-      const productId = data.product_id.toString();
+      // Get product ID from selectedProduct, not from data
+      const productId = selectedProduct?.product_id?.toString();
       
-      // formData.append('product_id', productId);
+      if (!productId) {
+        throw new Error('Product ID is required for update');
+      }
       
       // Add form fields
       formData.append('product', data.product);
@@ -125,9 +127,10 @@ const ListProduct = () => {
       if (data.imageFile) {
         formData.append('image', data.imageFile);
       }
-      console.log("pro Id" + productId)
       
-      await dispatch(updateProduct({formData, productId})).unwrap();
+      console.log("Product ID:", productId);
+      
+      await dispatch(updateProduct({ formData, productId })).unwrap();
       
       setIsEditModalOpen(false);
       setSelectedProduct(null);

@@ -16,8 +16,8 @@ function LoadingComponent() {
 }
 
 // Coffee Cup with realistic materials
-function RealisticCoffeeCup({ position = [0, 0, 0] }) {
-  const cupRef = useRef()
+function RealisticCoffeeCup({ position = [0, 0, 0] }: { position?: [number, number, number] }) {
+  const cupRef = useRef<THREE.Group>(null)
   
   useFrame((state) => {
     if (cupRef.current) {
@@ -87,7 +87,7 @@ function RealisticCoffeeCup({ position = [0, 0, 0] }) {
 }
 
 // Realistic Croissant với geometry tốt hơn
-function RealisticCroissant({ position = [0, 0, 0] }) {
+function RealisticCroissant({ position = [0, 0, 0] }: { position?: [number, number, number] }) {
   return (
     <group position={position}>
       <Float speed={1.5} rotationIntensity={0.1} floatIntensity={0.2}>
@@ -190,8 +190,8 @@ function CoffeeBeans() {
 }
 
 // Steam effect
-function SteamEffect({ position }) {
-  const steamRef = useRef()
+function SteamEffect({ position }: { position: [number, number, number] }) {
+  const steamRef = useRef<THREE.Group>(null)
   
   useFrame((state) => {
     if (steamRef.current) {
@@ -225,7 +225,7 @@ function SteamEffect({ position }) {
 
 // Ambient particles
 function AmbientParticles() {
-  const particlesRef = useRef()
+  const particlesRef = useRef<THREE.Group>(null)
   
   useFrame((state) => {
     if (particlesRef.current) {

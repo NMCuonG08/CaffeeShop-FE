@@ -1,4 +1,3 @@
-
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { register as registerUser, clearError } from "@/features/auth";
@@ -8,10 +7,11 @@ import { showError, showSuccess } from "@/components/common";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import SignUpForm from "@/features/auth/components/SignUpForm";
 import type { FormSignUp } from "@/types/auth.type";
+import type { RootState, AppDispatch } from "@/store";
 
 export default function AuthSignUpPage() {
-  const { loading, error, user, isAuthenticated } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const { loading, error, user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const handleSubmitData = (data: FormSignUp) => {

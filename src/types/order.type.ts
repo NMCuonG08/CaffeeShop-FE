@@ -1,7 +1,22 @@
-
 import type { Product } from './product.type';
 
+// Add missing imports
+export interface User {
+  id: number;
+  email: string;
+  name?: string;
+  // Add other user properties as needed
+}
 
+export interface UserInfo {
+  id: number;
+  fullName: string;
+  phone: string;
+  address: string;
+  // Add other user info properties as needed
+}
+
+// Change const enum to regular enum to fix erasableSyntaxOnly error
 export enum PaymentType {
   COD = 'COD',
   VNPAY = 'VNPAY',
@@ -16,8 +31,6 @@ export enum OrderStatus {
   DELIVERED = 'DELIVERED',
   CANCELLED = 'CANCELLED'
 }
-
-
 
 export interface OrderItem {
   id: number;
@@ -41,8 +54,14 @@ export interface Order {
   items?: OrderItem[];
 }
 
+// Add the missing OrderWithDetails interface
+export interface OrderWithDetails extends Order {
+  items: OrderItem[];
+  user: User;
+  userInfo: UserInfo;
+}
 
-
+// ...existing code...
 
 export interface CreateOrderRequest {
   userId?: number;

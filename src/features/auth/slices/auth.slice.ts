@@ -48,8 +48,11 @@ export const login = createAsyncThunk(
       setAuthToken(accessToken);
 
       return { user, token: accessToken };
-    } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as any)?.response?.data?.message || "Login failed";
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -74,10 +77,11 @@ export const register = createAsyncThunk(
       setAuthToken(accessToken);
       
       return { user, token: accessToken };
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Registration failed"
-      );
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as any)?.response?.data?.message || "Registration failed";
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -90,9 +94,12 @@ export const logout = createAsyncThunk(
       // Clear token
       setAuthToken(null);
       return null;
-    } catch (error) {
+    } catch (error: unknown) {
       setAuthToken(null);
-      rejectWithValue(error.response?.data?.message || "Logout failed");
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as any)?.response?.data?.message || "Logout failed";
+      rejectWithValue(errorMessage);
       return null;
     }
   }
@@ -114,11 +121,12 @@ export const getCurrentUser = createAsyncThunk(
       const response = await apiClient.get("/user/me");
 
       return { user: response.data.data.user, token };
-    } catch (error) {
+    } catch (error: unknown) {
       setAuthToken(null);
-      return rejectWithValue(
-        error.response?.data?.message || "Authentication failed"
-      );
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as any)?.response?.data?.message || "Authentication failed";
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -143,15 +151,16 @@ export const getUserByToken = createAsyncThunk(
         user: response.data.data, 
         token 
       };
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('❌ getUserByToken error:', error);
       
       // Clear token on error
       setAuthToken(null);
       
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user by token"
-      );
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : (error as any)?.response?.data?.message || "Failed to fetch user by token";
+      return rejectWithValue(errorMessage);
     }
   }
 );

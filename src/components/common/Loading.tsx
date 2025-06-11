@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
-import { hatch, bouncy } from 'ldrs';
-
+import  { useEffect } from 'react';
+import { hatch, bouncy, } from 'ldrs';
+import 'ldrs/bouncy'
 // Register LDRS components
 if (typeof window !== 'undefined') {
   hatch.register();
@@ -46,6 +46,7 @@ const link = "https://res.cloudinary.com/dj9r2qksh/video/upload/v1742444295/Reco
             speed="2.5"
             color="white"
           ></l-bouncy>
+          
           <p className="text-white text-[1.3rem] mt-5 font-medium text-center animate-pulse-text">
             Please wait...
           </p>

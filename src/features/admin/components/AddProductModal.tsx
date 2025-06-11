@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { X, Upload, Coffee, DollarSign, Package, Tag, FileText, Image as ImageIcon } from 'lucide-react';
 
 // Zod validation schema theo AdminProduct interface
+// Zod validation schema theo AdminProduct interface
 const productSchema = z.object({
   product: z.string().min(1, 'Product name is required').max(100, 'Name must be less than 100 characters'),
   product_description: z.string().min(10, 'Description must be at least 10 characters').max(500, 'Description must be less than 500 characters'),
@@ -14,9 +15,9 @@ const productSchema = z.object({
   product_type: z.string().optional(),
   unit_of_measure: z.string().optional(),
   current_wholesale_price: z.number().min(0, 'Wholesale price must be 0 or greater').optional(),
-  tax_exempt_yn: z.boolean().default(false),
-  promo_yn: z.boolean().default(false),
-  new_product_yn: z.boolean().default(true),
+  tax_exempt_yn: z.boolean(),
+  promo_yn: z.boolean(),
+  new_product_yn: z.boolean(),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;

@@ -7,10 +7,11 @@ import { showError, showSuccess } from "@/components/common";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import LoginForm from "@/features/auth/components/LoginForm";
 import type { FormLogin } from "@/types/auth.type";
+import type { RootState, AppDispatch } from "@/store";
 
 export default function AuthLogInPage() {
-  const { loading, error, user, isAuthenticated } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+  const { loading, error, user, isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
 
   const handleSubmitData = (data: FormLogin) => {
@@ -272,27 +273,29 @@ export default function AuthLogInPage() {
       </div>
 
       {/* Custom CSS */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          33% { transform: translateY(-10px) rotate(5deg); }
-          66% { transform: translateY(-5px) rotate(-3deg); }
-        }
-        
-        @keyframes steam {
-          0% { opacity: 0.8; transform: translateY(0px) scale(0.8); }
-          50% { opacity: 0.5; transform: translateY(-20px) scale(1.2); }
-          100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
-        }
+      <style>
+        {`
+          @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(5deg); }
+            66% { transform: translateY(-5px) rotate(-3deg); }
+          }
+          
+          @keyframes steam {
+            0% { opacity: 0.8; transform: translateY(0px) scale(0.8); }
+            50% { opacity: 0.5; transform: translateY(-20px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-40px) scale(1.5); }
+          }
 
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
+          .animate-float {
+            animation: float 6s ease-in-out infinite;
+          }
 
-        .animate-steam {
-          animation: steam 3s ease-out infinite;
-        }
-      `}</style>
+          .animate-steam {
+            animation: steam 3s ease-out infinite;
+          }
+        `}
+      </style>
     </div>
   );
 }

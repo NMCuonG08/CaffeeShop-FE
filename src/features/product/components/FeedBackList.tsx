@@ -30,7 +30,8 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
   const [isUpdating, setIsUpdating] = useState(false);
   const [newComment, setNewComment] = useState({
     rating: 5,
-    content: ''
+    content: '',
+    title: '' // Add title field
   });
 
   const {
@@ -56,19 +57,19 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
     feedback?.user?.email === currentUser?.email
   );
 
-
-
   // Set form data when editing existing feedback
   useEffect(() => {
     if (isUpdating && userExistingFeedback) {
       setNewComment({
         rating: userExistingFeedback.rating || 5,
-        content: userExistingFeedback.content || ''
+        content: userExistingFeedback.content || '',
+        title: userExistingFeedback.title || ''
       });
     } else if (!isUpdating) {
       setNewComment({
         rating: 5,
-        content: ''
+        content: '',
+        title: ''
       });
     }
   }, [isUpdating, userExistingFeedback]);
@@ -95,17 +96,24 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
       return;
     }
 
+    if (!newComment.title.trim()) {
+      showError('Review title cannot be empty');
+      return;
+    }
+
     try {
       if (isUpdating && userExistingFeedback?.id) {
         console.log('🔄 Updating feedback with data:', {
           feedbackId: userExistingFeedback.id,
           rating: newComment.rating,
-          content: newComment.content
+          content: newComment.content,
+          title: newComment.title
         });
 
         await updateFeedback(userExistingFeedback.id, {
           rating: newComment.rating,
-          content: newComment.content
+          content: newComment.content,
+          title: newComment.title
         });
 
         showSuccess('Review updated successfully!');
@@ -115,14 +123,16 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
           productId,
           type: 'REVIEW',
           rating: newComment.rating,
-          content: newComment.content
+          content: newComment.content,
+          title: newComment.title
         });
 
         await createFeedback({
           productId,
           type: 'REVIEW',
           rating: newComment.rating,
-          content: newComment.content
+          content: newComment.content,
+          title: newComment.title
         });
 
         showSuccess('Review added successfully!');
@@ -130,46 +140,43 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
       }
 
       // Reset form
-      setNewComment({ rating: 5, content: '' });
+      setNewComment({ rating: 5, content: '', title: '' });
       setShowAddForm(false);
       setIsUpdating(false);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error submitting comment:', error);
       const action = isUpdating ? 'update' : 'add';
       showError(`Failed to ${action} review: ` + (error?.message || 'Unknown error'));
     }
   };
 
- const  handleDeleteFeedback = async (feedbackId: number) => {
+  const handleDeleteFeedback = async (feedbackId: number) => {
     if (!isAuthenticated) {
       showError('You must be logged in to delete a review');
       return;
     }
-    const userConfirmation = showConfirm({
+    
+    const userConfirmation = await showConfirm({
       title: 'Delete Review',
       text: 'Are you sure you want to delete this review? This action cannot be undone.',
       icon: 'question',
-    })
+    });
 
-    if((await userConfirmation).isConfirmed) {
+    if (userConfirmation.isConfirmed) {
       try {
         console.log('🗑️ Deleting feedback with ID:', feedbackId);
         await deleteFeedback(feedbackId);
         showSuccess('Review deleted successfully!');
         console.log('✅ Feedback deleted successfully');
-      } catch (error) {
+      } catch (error: any) {
         console.error('❌ Error deleting feedback:', error);
         showError('Failed to delete review: ' + (error?.message || 'Unknown error'));
       }
-      
-    }
-    else {
+    } else {
       showInfo('Review deletion cancelled');
     }
-
-
-  }
+  };
 
   const handleEditClick = () => {
     setIsUpdating(true);
@@ -184,7 +191,7 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
   const handleCancelClick = () => {
     setShowAddForm(false);
     setIsUpdating(false);
-    setNewComment({ rating: 5, content: '' });
+    setNewComment({ rating: 5, content: '', title: '' });
   };
 
   const renderStars = (rating: number, interactive = false, size = 'w-5 h-5') => {
@@ -298,9 +305,11 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
                 {isUpdating ? 'Edit Your Review' : 'Write Your Review'}
               </div>
 
-              {isUpdating && (
-                <button onClick={() => handleDeleteFeedback(userExistingFeedback?.id)} 
-                className="bg-red-500 backdrop-blur-sm hover:bg-red-300 text-white font-medium px-6 py-3 rounded-full transition-all duration-200 flex items-center gap-2 border border-white/30">
+              {isUpdating && userExistingFeedback?.id && (
+                <button 
+                  onClick={() => handleDeleteFeedback(userExistingFeedback.id)} 
+                  className="bg-red-500 backdrop-blur-sm hover:bg-red-300 text-white font-medium px-6 py-3 rounded-full transition-all duration-200 flex items-center gap-2 border border-white/30"
+                >
                   <Trash className="w-5 h-5" />
                   Delete
                 </button>
@@ -332,6 +341,23 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3">
+                  Review Title
+                </label>
+                <input
+                  type="text"
+                  value={newComment.title}
+                  onChange={(e) => setNewComment(prev => ({
+                    ...prev,
+                    title: e.target.value
+                  }))}
+                  placeholder="Give your review a title..."
+                  required
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700 placeholder-gray-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Your Review
                 </label>
                 <textarea
@@ -343,7 +369,7 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
                   placeholder="Share your experience with this product. What did you like or dislike?"
                   rows={4}
                   required
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-gray-700 placeholder-gray-400"
                 />
               </div>
 

@@ -23,6 +23,7 @@ interface ProductState {
   error: string | null;
   totalProducts: number;
   searchQuery: string;
+  totalProducts: int
 }
 
 interface FetchProductsParams {
