@@ -32,18 +32,18 @@ const GET_PRODUCT = gql`
   }
 `;
 
-const GET_PRODUCTS = gql`
-  query GetProducts($filter: ProductFilter) {
-    getProducts(filter: $filter) {
-      product_id
-      product
-      product_category
-      current_retail_price
-      product_image_cover
-      averageRating
-    }
-  }
-`;
+// const GET_PRODUCTS = gql`
+//   query GetProducts($filter: ProductFilter) {
+//     getProducts(filter: $filter) {
+//       product_id
+//       product
+//       product_category
+//       current_retail_price
+//       product_image_cover
+//       averageRating
+//     }
+//   }
+// `;
 
 const CREATE_PRODUCT = gql`
   mutation CreateProduct($input: CreateProductInput!) {
@@ -98,17 +98,17 @@ export const useProductName = (id: number) => {
   };
 };
 
-export const useProducts = (filter?: any) => {
-  const { data, loading, error } = useQuery(GET_PRODUCTS, {
-    variables: { filter },
-  });
+// export const useProducts = (filter?: any) => {
+//   const { data, loading, error } = useQuery(GET_PRODUCTS, {
+//     variables: { filter },
+//   });
 
-  return {
-    products: data?.getProducts,
-    loading,
-    error,
-  };
-};
+//   return {
+//     products: data?.getProducts,
+//     loading,
+//     error,
+//   };
+// };
 
 export const useCreateProduct = () => {
   const [createProduct, { loading, error }] = useMutation(CREATE_PRODUCT);

@@ -1,12 +1,15 @@
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import gsap from "gsap";
 import { TextPlugin } from "gsap/TextPlugin";
+import type { HasAnimatedState } from '@/types';
+
+
 
 gsap.registerPlugin(TextPlugin);
 
 interface HeroProps {
   hasAnimated: { hero: boolean };
-  setHasAnimated: React.Dispatch<React.SetStateAction<any>>;
+  setHasAnimated: React.Dispatch<React.SetStateAction<HasAnimatedState>>;
 }
 
 const Hero: React.FC<HeroProps> = ({ hasAnimated, setHasAnimated }) => {
@@ -86,7 +89,7 @@ const Hero: React.FC<HeroProps> = ({ hasAnimated, setHasAnimated }) => {
       if (!hasAnimated.hero) {
         const tl = gsap.timeline({
           onComplete: () => {
-            setHasAnimated((prev: any) => ({ ...prev, hero: true }));
+            setHasAnimated((prev) => ({ ...prev, hero: true }));
           }
         });
         
@@ -128,7 +131,7 @@ const Hero: React.FC<HeroProps> = ({ hasAnimated, setHasAnimated }) => {
       const particles = particlesRef.current?.children || [];
       gsap.set(particles, { opacity: 0 });
       
-      Array.from(particles).slice(0, 20).forEach((particle, i) => {
+      Array.from(particles).slice(0, 20).forEach((particle) => {
         gsap.to(particle, {
           opacity: 0.6,
           y: -100,
@@ -230,7 +233,7 @@ const Hero: React.FC<HeroProps> = ({ hasAnimated, setHasAnimated }) => {
               fontSize: Math.random() * 15 + 10 + 'px'
             }}
           >
-            ☕
+            {/*  */}
           </div>
         ))}
       </div>

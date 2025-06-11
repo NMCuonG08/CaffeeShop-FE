@@ -32,7 +32,7 @@ const CheckoutPage: React.FC = () => {
   const { createPaymentUrl, isCreatingPayment, error: paymentError } = useVNPayPayment();
   
   // Lấy userInfo để check userInfoId
-  const { userInfo, loading: userInfoLoading, updateUserInfo } = useUserInfo(user?.id);
+  const { userInfo, loading, updateUserInfo } = useUserInfo(user?.id);
   const { createOrder, creating } = useOrder();
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
@@ -195,6 +195,17 @@ const CheckoutPage: React.FC = () => {
       </div>
     );
   }
+
+  if (loading || creating) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Đang tải...</h2>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50">

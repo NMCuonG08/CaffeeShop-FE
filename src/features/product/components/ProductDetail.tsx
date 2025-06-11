@@ -10,15 +10,12 @@ import {
   StarIcon,
   TruckIcon,
   ShieldCheckIcon,
-  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon, StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
-import { showSuccess } from '@/components';
 import { useCart } from '@/features/cart/hooks/useCart';
 
 export const ProductDetail = () => {
   const { productId } = useParams();
-  const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -29,7 +26,7 @@ export const ProductDetail = () => {
 
 
 
-  const { addToCart, getCartItemById } = useCart();
+  const { addToCart } = useCart();
   // const cartItem = getCartItemById(product.product_id.toString());
   // const currentQuantityInCart = cartItem?.quantity || 0;
 
@@ -61,7 +58,7 @@ export const ProductDetail = () => {
   };
 
 
-  if (loading) {
+  if (loading || isAdding) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">

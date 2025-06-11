@@ -8,6 +8,7 @@ import Pagination from './Pagination';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
 import { Loading, showSuccess } from '@/components';
+import type { Product } from '@/types';
 
 const ListProduct = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,7 +21,7 @@ const ListProduct = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
     dispatch(fetchAdminProducts({ page: currentPage, limit }));
@@ -48,7 +49,7 @@ const ListProduct = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleAddProductSubmit = async (data: any) => {
+  const handleAddProductSubmit = async (data: Product) => {
     try {
       setAddLoading(true);
 
@@ -84,18 +85,18 @@ const ListProduct = () => {
     }
   };
 
-  const handleViewProduct = (product: any) => {
-    console.log('View product:', product);
-    // TODO: Navigate to product detail page or open modal
-  };
+  // const handleViewProduct = (product: any) => {
+  //   console.log('View product:', product);
+  //   // TODO: Navigate to product detail page or open modal
+  // };
 
-  const handleEditProduct = (product: any) => {
+  const handleEditProduct = (product: Product) => {
     
     setSelectedProduct(product);
     setIsEditModalOpen(true);
   };
 
-  const handleEditProductSubmit = async (data: any) => {
+  const handleEditProductSubmit = async (data: Product) => {
     try {
       setEditLoading(true);
 

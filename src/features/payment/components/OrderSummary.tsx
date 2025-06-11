@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { type CartItem, type PaymentMethod, type ShippingInfo } from '../types/payment.type';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useAuth } from '@/features/auth/hooks/useAuth';
-import { showAlert, showError, showSuccess } from '@/components';
+import {  showError } from '@/components';
 import { AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 
 interface OrderSummaryProps {

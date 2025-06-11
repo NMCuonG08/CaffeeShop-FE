@@ -3,11 +3,8 @@ import { StarIcon } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import {type FeedbackCardProps,type User } from '@/types';
 
-interface ExtendedFeedbackCardProps extends FeedbackCardProps {
-  isCurrentUser?: boolean;
-}
 
-const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, index = 0, isCurrentUser = false  }) => {
+const FeedbackCard: React.FC<FeedbackCardProps> = ({ feedback, isCurrentUser = false  }) => {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',

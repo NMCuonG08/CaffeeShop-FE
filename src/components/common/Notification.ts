@@ -1,6 +1,6 @@
-import Swal from 'sweetalert2'
+import Swal, { type SweetAlertOptions } from 'sweetalert2'
 
-export const showAlert = (options: any) => {
+export const showAlert = (options: SweetAlertOptions) => {
   return Swal.fire(options)
 }
 

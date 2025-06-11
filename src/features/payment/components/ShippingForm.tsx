@@ -56,7 +56,6 @@ interface ShippingFormProps {
 
 const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) => {
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({});
   const [showValidation, setShowValidation] = useState(false);
   const [isLoadingUserInfo, setIsLoadingUserInfo] = useState(false);
 
@@ -213,13 +212,11 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
       }
     }, [shippingInfo, onChange, showValidation, errors, validateField]);
 
-  const handleBlur = useCallback((field: string, value: string) => {
-    setTouchedFields(prev => ({ ...prev, [field]: true }));
-
-    if (showValidation) {
-      validateField(field, value);
+    if (error) {
+      console.error('Error loading user info:', error);
+      showError('Không thể tải thông tin người dùng. Vui lòng thử lại sau.');
     }
-  }, [validateField, showValidation]);
+
 
   const isFormValid = useCallback(() => {
     try {
@@ -339,7 +336,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
               type="text"
               value={shippingInfo.fullName || ''}
               onChange={handleInputChange('fullName')}
-              onBlur={(e) => handleBlur('fullName', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.fullName
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -363,7 +359,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
               type="email"
               value={shippingInfo.email || ''}
               onChange={handleInputChange('email')}
-              onBlur={(e) => handleBlur('email', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.email
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -387,7 +382,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
               type="tel"
               value={shippingInfo.phone || ''}
               onChange={handleInputChange('phone')}
-              onBlur={(e) => handleBlur('phone', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.phone
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -410,7 +404,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
             <select
               value={shippingInfo.city || ''}
               onChange={handleInputChange('city')}
-              onBlur={(e) => handleBlur('city', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.city
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -440,7 +433,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
               type="text"
               value={shippingInfo.district || ''}
               onChange={handleInputChange('district')}
-              onBlur={(e) => handleBlur('district', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.district
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -464,7 +456,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
               type="text"
               value={shippingInfo.ward || ''}
               onChange={handleInputChange('ward')}
-              onBlur={(e) => handleBlur('ward', e.target.value)}
               className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 ${showValidation && errors.ward
                   ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                   : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -488,7 +479,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
           <textarea
             value={shippingInfo.address || ''}
             onChange={handleInputChange('address')}
-            onBlur={(e) => handleBlur('address', e.target.value)}
             className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 resize-none ${showValidation && errors.address
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                 : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'
@@ -512,7 +502,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
           <textarea
             value={shippingInfo.notes || ''}
             onChange={handleInputChange('notes')}
-            onBlur={(e) => handleBlur('notes', e.target.value)}
             className={`w-full px-4 py-3 border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 resize-none ${showValidation && errors.notes
                 ? 'border-red-300 focus:border-red-500 focus:ring-red-200 bg-red-50'
                 : 'border-gray-300 focus:border-blue-500 focus:ring-blue-200'

@@ -1,15 +1,16 @@
 import React from 'react';
 import { Coffee, Plus } from 'lucide-react';
 import ProductCard from './ProductCard';
+import type { Product } from '@/types';
 
 interface ProductGridProps {
-  products: any[];
+  products: Product[];
   loading: boolean;
   searchTerm: string;
   onAddProduct?: () => void;
-  onViewProduct?: (product: any) => void;
-  onEditProduct?: (product: any) => void;
-  onDeleteProduct?: (product: any) => void;
+  onViewProduct?: (product: Product) => void;
+  onEditProduct?: (product: Product) => void;
+  onDeleteProduct?: (product: Product) => void;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({

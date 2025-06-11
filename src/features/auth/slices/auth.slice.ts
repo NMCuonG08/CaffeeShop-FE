@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice,type PayloadAction } from "@reduxjs/toolkit";
 import apiClient, { setAuthToken } from '@/configs/apiClient';
 
 import type { FormSignUp } from "@/types";
@@ -19,12 +19,13 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
+// Clean initialState - Redux Persist sẽ restore state
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('token'),
+  token: null,
   loading: false,
   error: null,
- isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: false,
 };
 
 // Login async thunk
@@ -43,7 +44,8 @@ export const login = createAsyncThunk(
       const { user, token } = response.data.data;
       const accessToken = token.access_token || token;
       
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${accessToken}`;
+      // Set token for API client
+      setAuthToken(accessToken);
 
       return { user, token: accessToken };
     } catch (error) {
@@ -68,6 +70,9 @@ export const register = createAsyncThunk(
       const { user, token } = response.data.data;
       const accessToken = token.access_token || token;
       
+      // Set token for API client
+      setAuthToken(accessToken);
+      
       return { user, token: accessToken };
     } catch (error) {
       return rejectWithValue(
@@ -82,11 +87,11 @@ export const logout = createAsyncThunk(
   "auth/logout",
   async (_, { rejectWithValue }) => {
     try {
-      // await apiClient.post("/auth/logout");
-      delete apiClient.defaults.headers.common["Authorization"];
+      // Clear token
+      setAuthToken(null);
       return null;
     } catch (error) {
-      delete apiClient.defaults.headers.common["Authorization"];
+      setAuthToken(null);
       rejectWithValue(error.response?.data?.message || "Logout failed");
       return null;
     }
@@ -98,26 +103,25 @@ export const getCurrentUser = createAsyncThunk(
   "auth/getCurrentUser",
   async (_, { rejectWithValue, getState }) => {
     try {
-      const state = getState();
+      const state = getState() as { auth: AuthState };
       const token = state.auth.token;
       
       if (!token) {
         throw new Error("No token found");
       }
 
-      apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      setAuthToken(token);
       const response = await apiClient.get("/user/me");
 
       return { user: response.data.data.user, token };
     } catch (error) {
-      delete apiClient.defaults.headers.common["Authorization"];
+      setAuthToken(null);
       return rejectWithValue(
         error.response?.data?.message || "Authentication failed"
       );
     }
   }
 );
-
 
 export const getUserByToken = createAsyncThunk(
   "auth/getUserByToken",
@@ -151,6 +155,7 @@ export const getUserByToken = createAsyncThunk(
     }
   }
 );
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -162,39 +167,30 @@ const authSlice = createSlice({
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      delete apiClient.defaults.headers.common["Authorization"];
+      setAuthToken(null);
     },
     loginStart: (state) => {
-      state.isLoading = true;
+      state.loading = true;
       state.error = null;
     },
     loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      state.isLoading = false;
+      state.loading = false;
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
       state.error = null;
     },
     loginFailure: (state, action: PayloadAction<string>) => {
-      state.isLoading = false;
+      state.loading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
       state.user = null;
       state.token = null;
-      localStorage.removeItem('token');
     },
-    logout: (state) => {
-      state.user = null;
-      state.token = null;
-      state.isAuthenticated = false;
-      state.error = null;
-      localStorage.removeItem('token');
-    },
-   
-    // Action để khôi phục token khi app reload
+    // Action để khôi phục token khi app reload từ persist
     restoreAuth: (state) => {
       if (state.token) {
-        apiClient.defaults.headers.common["Authorization"] = `Bearer ${state.token}`;
+        setAuthToken(state.token);
         state.isAuthenticated = true;
       }
     },
@@ -277,7 +273,6 @@ const authSlice = createSlice({
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.isAuthenticated = true;
-        
         state.error = null;
       })
       .addCase(getUserByToken.rejected, (state) => {

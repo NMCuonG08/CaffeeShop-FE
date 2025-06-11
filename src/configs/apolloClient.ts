@@ -29,11 +29,11 @@ const getTokenFromPersist = () => {
 
 // HTTP Link cho queries và mutations
 const httpLink = createHttpLink({
-  uri: 'http://localhost:3333/graphql', 
+  uri: import.meta.env.VITE_API_GRAPQL_URL,
 });
 
 const wsLink = new GraphQLWsLink(createClient({
-  url: 'ws://localhost:3333/graphql',
+  url: import.meta.env.VITE_API_WS_GRAPQL_URL,
   connectionParams: () => {
     const token = getTokenFromPersist();
     console.log('🔑 WebSocket connecting with token:', token ? 'Present' : 'Missing');
@@ -74,7 +74,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 // Error Link để handle authentication errors
-const errorLink = onError(({ graphQLErrors, networkError, operation, forward }) => {
+const errorLink = onError(({ graphQLErrors, networkError }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path }) => {
       console.error(`GraphQL error: Message: ${message}, Location: ${locations}, Path: ${path}`);

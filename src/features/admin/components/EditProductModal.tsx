@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { X, Upload, Coffee, DollarSign, Package, Tag, FileText, Image as ImageIcon } from 'lucide-react';
+import type { Product } from '@/types';
 
 // Zod validation schema
 const productSchema = z.object({
@@ -26,7 +27,7 @@ interface EditProductModalProps {
   onClose: () => void;
   onSubmit: (data: ProductFormData & { imageFile?: File; product_id: number }) => void;
   loading?: boolean;
-  product: any; // Product data to edit
+  product: Product; 
 }
 
 const EditProductModal: React.FC<EditProductModalProps> = ({

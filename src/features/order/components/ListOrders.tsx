@@ -1,5 +1,5 @@
 import React from 'react';
-import { type Order, OrderStatus, PaymentType } from '@/types';
+import { type Order} from '@/types';
 import OrderCard from './OrderCard';
 import { Package } from 'lucide-react';
 import { useOrder } from '../hooks/useOrder';
@@ -18,53 +18,7 @@ const ListOrders: React.FC<ListOrdersProps> = ({ activeStatus }) => {
   console.log('userOrders:', userOrders);
 
   // Mock data - sẽ thay bằng API call sau
-  const mockOrders: Order[] = [
-    {
-      id: 1,
-      createdAt: new Date('2024-12-01T10:30:00'),
-      totalAmount: 250000,
-      status: OrderStatus.PENDING,
-      paymentType: PaymentType.COD,
-      userInfo: {
-        id: 1,
-        fullName: 'Nguyễn Văn A',
-        email: 'nguyenvana@gmail.com',
-        phone: '0901234567',
-        address: '123 Nguyễn Trãi',
-        city: 'Hồ Chí Minh',
-        district: 'Quận 1',
-        ward: 'Phường Bến Nghé'
-      },
-      items: [
-        {
-          id: 1,
-          orderId: 1,
-          productId: 1,
-          quantity: 2,
-          unitPrice: 75000,
-          product: {
-            id: 1,
-            name: 'Cà phê Americano',
-            price: 75000,
-            image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=300&h=300&fit=crop'
-          }
-        },
-        {
-          id: 2,
-          orderId: 1,
-          productId: 2,
-          quantity: 1,
-          unitPrice: 100000,
-          product: {
-            id: 2,
-            name: 'Bánh croissant',
-            price: 100000,
-            image: 'https://images.unsplash.com/photo-1555507036-ab794f17bbc0?w=300&h=300&fit=crop'
-          }
-        }
-      ]
-    },
-  ];
+  const mockOrders: Order[] = userOrders;
 
   // Filter orders based on active status
   const filteredOrders = activeStatus === 'all' 
@@ -89,6 +43,22 @@ const ListOrders: React.FC<ListOrdersProps> = ({ activeStatus }) => {
       </div>
     );
   }
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-200 border-t-amber-600"></div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg">
+        <p className="font-medium">Lỗi khi tải đơn hàng: {error.message}</p>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-4">

@@ -1,28 +1,29 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Star, ShoppingCart, Heart, Plus, Minus, Zap, Award, Package } from 'lucide-react';
+import { ShoppingCart, Heart, Plus, Minus, Zap, Package } from 'lucide-react';
 import { useCheapestProducts, type Product } from '@/features/product/services/product.query';
 import { toast } from 'react-hot-toast';
 import { useCart } from '@/features/cart/hooks/useCart';
+import type { HasAnimatedState } from '@/types';
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface DrinksProps {
   hasAnimated: { drinks: boolean };
-  setHasAnimated: React.Dispatch<React.SetStateAction<any>>;
+  setHasAnimated: React.Dispatch<React.SetStateAction<HasAnimatedState>>;
 }
 
 const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
   const drinksRef = useRef<HTMLDivElement>(null);
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  // const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [quantity, setQuantity] = useState(1);
   
   const [isAdding, setIsAdding] = useState(false);
   // Queries
   const { data: products = [], isLoading, error, isError } = useCheapestProducts();
-    const { addToCart, loading, getCartItemById } = useCart();
+    const { addToCart } = useCart();
   
 
   const formatCurrency = (amount: number) => {
@@ -61,6 +62,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
   if (categoryStr.includes('add-on')) return 'from-purple-400 to-pink-500';
   return 'from-blue-400 to-cyan-500';
 };
+
 
 
   const handleAddToCart = async (product: Product) => {
@@ -155,7 +157,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
               stagger: 0.15,
               ease: "back.out(1.4)",
               onComplete: () => {
-                setHasAnimated((prev: any) => ({ ...prev, drinks: true }));
+                setHasAnimated((prev) => ({ ...prev, drinks: true }));
               }
             }
           );
@@ -164,7 +166,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
     });
   }, [hasAnimated, setHasAnimated, isLoading, products.length]);
 
-  if (isLoading) {
+  if (isLoading || isAdding ) {
     return (
       <section className="py-24 px-6 bg-gradient-to-r from-amber-100 to-orange-100">
         <div className="max-w-6xl mx-auto">

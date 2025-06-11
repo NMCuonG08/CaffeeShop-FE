@@ -126,7 +126,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
       <div className="p-6">
         {order.items && order.items.length > 0 && (
           <div className="flex items-center space-x-4 mb-4">
-            {order.items.slice(0, 3).map((item, index) => (
+            {order.items.slice(0, 3).map((item) => (
               <div key={item.id} className="flex items-center space-x-2">
                 <img
                   src={item.product?.image || '/placeholder-product.jpg'}

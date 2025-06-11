@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { loginSuccess, loginFailure, getUserByToken } from '../slices/auth.slice';
+import {  loginFailure, getUserByToken } from '../slices/auth.slice';
 
 const GoogleCallback: React.FC = () => {
   const dispatch = useDispatch();

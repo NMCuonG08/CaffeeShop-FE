@@ -1,12 +1,14 @@
 import React, { useRef, useEffect } from 'react';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import type { HasAnimatedState } from '@/types';
+
 
 gsap.registerPlugin(ScrollTrigger);
 
 interface AboutProps {
   hasAnimated: { about: boolean };
-  setHasAnimated: React.Dispatch<React.SetStateAction<any>>;
+  setHasAnimated: React.Dispatch<React.SetStateAction<HasAnimatedState>>;
 }
 
 const About: React.FC<AboutProps> = ({ hasAnimated, setHasAnimated }) => {
@@ -32,7 +34,7 @@ const About: React.FC<AboutProps> = ({ hasAnimated, setHasAnimated }) => {
               duration: 1.2,
               stagger: 0.2,
               ease: "power3.out",
-              onComplete: () => setHasAnimated((prev: any) => ({ ...prev, about: true }))
+              onComplete: () => setHasAnimated((prev) => ({ ...prev, about: true }))
             }
           );
         }

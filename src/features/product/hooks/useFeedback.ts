@@ -1,11 +1,10 @@
 // hooks/useFeedback.ts
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { 
   useQuery, 
   useMutation, 
   useSubscription,
-type  QueryHookOptions,
- type MutationHookOptions 
+
 } from '@apollo/client';
 
 import {
@@ -53,7 +52,7 @@ export function useFeedback(options?: {
   const [feedbacks, setFeedbacks] = useState<Feedback[]>([]);
 
   // Query to get initial feedbacks
-  const { data, loading, error, refetch } = useQuery(GET_FEEDBACKS, {
+  const {  loading, error, refetch } = useQuery(GET_FEEDBACKS, {
     variables: {
       productId,
       userId,

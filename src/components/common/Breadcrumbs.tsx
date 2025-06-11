@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { ChevronRight, Home } from "lucide-react";
 import { useProductName } from "@/features/product/hooks/useProduct";
 
-const breadcrumbNameMap = {
+const breadcrumbNameMap :{ [key: string]: string } = {
   "/": "Trang chủ",
   "/auth": "Xác thực",
   "/auth/signup": "Đăng ký",

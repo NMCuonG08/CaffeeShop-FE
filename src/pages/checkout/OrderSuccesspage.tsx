@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CheckCircle, Package, Truck, Home, Clock, MapPin } from 'lucide-react';
+import { CheckCircle, Package, Truck, Home, MapPin } from 'lucide-react';
+import type { OrderItem, PaymentType, UserInfo } from '@/types';
 
 interface OrderData {
-  items: any[];
-  shippingInfo: any;
-  paymentMethod: any;
+  items: OrderItem[];
+  shippingInfo: UserInfo;
+  paymentMethod: PaymentType;
   subtotal: number;
   shippingFee: number;
   total: number;

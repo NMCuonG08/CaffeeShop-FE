@@ -48,10 +48,10 @@ query{
       quantity,
       unitPrice,
       product {
-        id: product_id,
+        product_id,
         name: product,
         price: current_retail_price,
-        image: product_image_cover
+        image
       }
     },
     userInfo {

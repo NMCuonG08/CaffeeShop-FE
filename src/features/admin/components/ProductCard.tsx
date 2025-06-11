@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { Edit, Trash2, Coffee, Eye } from 'lucide-react';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import type { Product } from '@/types';
 
 interface ProductCardProps {
-  product: any;
-  onView?: (product: any) => void;
-  onEdit?: (product: any) => void;
-  onDelete?: (product: any) => void;
+  product: Product;
+  onView?: (product: Product) => void;
+  onEdit?: (product: Product) => void;
+  onDelete?: (product: Product) => void;
   deleteLoading?: boolean;
 }
 
@@ -20,7 +21,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Flexible property mapping
-  const productId = product?.product_id || product?._id || product?.id;
+  // const productId = product?.product_id || product?._id || product?.id;
   const productName = product?.name || product?.product || product?.product_name || 'Unnamed Product';
   const productDesc = product?.description || product?.product_description || 'No description available';
   const productPrice = product?.price || product?.current_retail_price || product?.current_wholesale_price || 0;

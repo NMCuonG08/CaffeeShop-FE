@@ -45,14 +45,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   const handleBuyNow = () => {
-    // Set direct checkout item và navigate to checkout
-    const directItem = {
-      id: product.product_id.toString(),
-      name: product.product,
-      price: product.current_retail_price,
-      quantity: quantity,
-      image: product.product_image_cover
-    };
+
+   
     
     // Có thể dispatch setDirectCheckout action và navigate
     // hoặc pass qua router state
