@@ -1,8 +1,8 @@
 import React from 'react';
-import { type Order} from '@/types';
 import OrderCard from './OrderCard';
 import { Package } from 'lucide-react';
 import { useOrder } from '../hooks/useOrder';
+import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface ListOrdersProps {
   activeStatus: string;
@@ -10,20 +10,32 @@ interface ListOrdersProps {
 
 const ListOrders: React.FC<ListOrdersProps> = ({ activeStatus }) => {
 
+  const { user } = useAuth();
 
-  const {userOrders, loading, error} = useOrder();
+  const { orders, loading, error } = useOrder(user?.id);
 
-  
-
-  console.log('userOrders:', userOrders);
-
-  // Mock data - sẽ thay bằng API call sau
-  const mockOrders: Order[] = userOrders;
+  console.log('orders:', orders);
 
   // Filter orders based on active status
   const filteredOrders = activeStatus === 'all' 
-    ? mockOrders 
-    : mockOrders.filter(order => order.status === activeStatus);
+    ? orders 
+    : orders.filter(order => order.status === activeStatus);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-200 border-t-amber-600"></div>
+      </div>
+    );
+  }
+  
+  if (error) {
+    return (
+      <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg">
+        <p className="font-medium">Lỗi khi tải đơn hàng: {error.message}</p>
+      </div>
+    );
+  }
 
   if (filteredOrders.length === 0) {
     return (
@@ -43,22 +55,6 @@ const ListOrders: React.FC<ListOrdersProps> = ({ activeStatus }) => {
       </div>
     );
   }
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-amber-200 border-t-amber-600"></div>
-      </div>
-    );
-  }
-  if (error) {
-    return (
-      <div className="bg-red-50 border border-red-200 text-red-800 p-4 rounded-lg">
-        <p className="font-medium">Lỗi khi tải đơn hàng: {error.message}</p>
-      </div>
-    );
-  }
-
 
   return (
     <div className="space-y-4">

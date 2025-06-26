@@ -18,8 +18,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   // Check if product already in cart
   const cartItem = getCartItemById(product.product_id.toString());
   const currentQuantityInCart = cartItem?.quantity || 0;
+  
+  // Check stock availability
+  const isOutOfStock = product.stock === 0;
+  const maxAvailableQuantity = product.stock || 999; // Default to 999 if stock not defined
 
   const handleAddToCart = async () => {
+    if (isOutOfStock) {
+      toast.error('Product is out of stock');
+      return;
+    }
+    
+    if (quantity > maxAvailableQuantity) {
+      toast.error(`Only ${maxAvailableQuantity} items available in stock`);
+      return;
+    }
+    
     setIsAdding(true);
     
     try {
@@ -30,7 +44,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           name: product.product,
           price: product.current_retail_price,
           imageUrl: product.product_image_cover,
-          maxQuantity: 10 // hoặc từ product data
+          maxQuantity: maxAvailableQuantity
         }
       });
       
@@ -83,6 +97,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {currentQuantityInCart} in cart
           </span>
         )}
+        
+        {/* Stock indicator */}
+        {product.stock !== undefined && (
+          <span className={`absolute bottom-2 left-2 text-white text-xs font-semibold px-2 py-1 rounded-full ${
+            product.stock === 0 
+              ? 'bg-red-500' 
+              : product.stock <= 5 
+                ? 'bg-orange-500' 
+                : 'bg-green-500'
+          }`}>
+            {product.stock === 0 ? 'Out of Stock' : `${product.stock} left`}
+          </span>
+        )}
       </div>
 
       <div className="p-4 flex flex-col flex-grow">
@@ -103,9 +130,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <span className="bg-gray-100 px-2 py-1 rounded-md font-medium text-red-500">
             {product.unit_of_measure}
           </span>
-          {product.tax_exempt_yn && (
-            <span className="text-green-600 font-medium">Tax Exempt</span>
-          )}
+          <div className="flex items-center gap-2">
+            {product.tax_exempt_yn && (
+              <span className="text-green-600 font-medium">Tax Exempt</span>
+            )}
+            {product.stock !== undefined && (
+              <span className={`px-2 py-1 rounded-md font-medium text-xs ${
+                product.stock === 0 
+                  ? 'bg-red-100 text-red-600' 
+                  : product.stock <= 5 
+                    ? 'bg-orange-100 text-orange-600' 
+                    : 'bg-green-100 text-green-600'
+              }`}>
+                Stock: {product.stock}
+              </span>
+            )}
+          </div>
         </div>
 
         <div className="bg-gray-50 p-3 rounded-lg mb-4">
@@ -129,8 +169,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center border rounded-lg">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors"
-              disabled={isAdding || loading}
+              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isAdding || loading || isOutOfStock}
             >
               -
             </button>
@@ -138,9 +178,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               {quantity}
             </span>
             <button
-              onClick={() => setQuantity(quantity + 1)}
-              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors"
-              disabled={isAdding || loading}
+              onClick={() => setQuantity(Math.min(maxAvailableQuantity, quantity + 1))}
+              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isAdding || loading || isOutOfStock || quantity >= maxAvailableQuantity}
             >
               +
             </button>
@@ -151,10 +191,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="space-y-2">
           <button 
             onClick={handleAddToCart}
-            disabled={isAdding || loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 active:transform active:translate-y-px flex items-center justify-center"
+            disabled={isAdding || loading || isOutOfStock}
+            className={`w-full font-medium py-3 px-4 rounded-lg transition-colors duration-200 active:transform active:translate-y-px flex items-center justify-center ${
+              isOutOfStock 
+                ? 'bg-gray-400 cursor-not-allowed text-white' 
+                : 'bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white'
+            }`}
           >
-            {isAdding || loading ? (
+            {isOutOfStock ? (
+              'Out of Stock'
+            ) : isAdding || loading ? (
               <>
                 <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -169,9 +215,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           
           <button 
             onClick={handleBuyNow}
-            className="w-full bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+            disabled={isOutOfStock}
+            className={`w-full font-medium py-2 px-4 rounded-lg transition-colors duration-200 ${
+              isOutOfStock 
+                ? 'bg-gray-400 cursor-not-allowed text-white' 
+                : 'bg-orange-600 hover:bg-orange-700 text-white'
+            }`}
           >
-            Buy Now
+            {isOutOfStock ? 'Out of Stock' : 'Buy Now'}
           </button>
         </div>
       </div>

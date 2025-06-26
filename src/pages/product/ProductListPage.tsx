@@ -94,7 +94,7 @@ const ProductList: React.FC = () => {
   const handleFilterChange = (filterType: string, value: string) => {
     const newFilters = { ...filters, [filterType]: value };
     setFilters(newFilters);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
     
     // Update URL
     const newSearchParams = new URLSearchParams();

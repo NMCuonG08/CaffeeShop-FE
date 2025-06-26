@@ -15,6 +15,7 @@ import CheckoutPage from '@/pages/checkout/CheckoutPage';
 import { ProductDetailPage } from '@/pages/product/ProductDetailPage';
 import OrderSuccessPage from '@/pages/checkout/OrderSuccesspage';
 import OrderFailedPage from '@/pages/checkout/OrderFailedPage';
+import VNPayCallbackPage from '@/pages/checkout/VNPayCallbackPage';
 import OrdersPage from '@/pages/OrdersPage';
 import ProfilePage from '@/pages/ProfilePage';
 // import Login from '../pages/Login';
@@ -36,6 +37,14 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <CheckoutPage /> },
+    ],
+    errorElement: <NotFound />,
+  },
+  {
+    path: '/order-success',
+    element: <MainLayout />,
+    children: [
+      { index: true, element: <OrderSuccessPage /> },
     ],
     errorElement: <NotFound />,
   },
@@ -78,8 +87,9 @@ const router = createBrowserRouter([
     path: '/payment',
     element: <MainLayout />,
     children: [
-       { path: 'success', element: <OrderSuccessPage/> },
+      { path: 'success', element: <OrderSuccessPage/> },
       { path: 'failed', element: <OrderFailedPage /> },
+      { path: 'vnpay-callback', element: <VNPayCallbackPage /> },
     ],
     errorElement: <NotFound />,
   },

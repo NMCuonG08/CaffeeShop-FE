@@ -85,10 +85,10 @@ const ListProduct = () => {
     }
   };
 
-  // const handleViewProduct = (product: any) => {
-  //   console.log('View product:', product);
-  //   // TODO: Navigate to product detail page or open modal
-  // };
+  const handleViewProduct = (product: any) => {
+    console.log('View product:', product);
+    // TODO: Navigate to product detail page or open modal
+  };
 
   const handleEditProduct = (product: Product) => {
     

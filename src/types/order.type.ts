@@ -45,7 +45,7 @@ export interface Order {
 
 
 export interface CreateOrderRequest {
-  userId?: number;
+  userId: number;
   paymentType: PaymentType;
   items: CreateOrderItemRequest[];
   // notes?: string;

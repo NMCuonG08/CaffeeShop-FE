@@ -30,7 +30,8 @@ const OrderFailedPage = () => {
 
   const handleRetryPayment = () => {
     if (orderInfo.orderId) {
-      navigate(`/checkout/payment?orderId=${orderInfo.orderId}`)
+      // navigate(`/checkout/payment?orderId=${orderInfo.orderId}`)
+      navigate("/checkout")
     } else {
       navigate('/cart')
     }

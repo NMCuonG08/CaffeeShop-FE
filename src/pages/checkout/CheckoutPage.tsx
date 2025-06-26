@@ -11,7 +11,7 @@ import { z } from 'zod';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { useUserInfo } from '@/features/auth/hooks/useUserInfo';
-import { showSuccess } from '@/components';
+import { showError, showSuccess } from '@/components';
 
 // Import schema để validate
 const shippingSchema = z.object({
@@ -33,7 +33,7 @@ const CheckoutPage: React.FC = () => {
   
   // Lấy userInfo để check userInfoId
   const { userInfo, loading, updateUserInfo } = useUserInfo(user?.id);
-  const { createOrder, creating } = useOrder();
+  const { createOrder, creating } = useOrder(user?.id);
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     fullName: '',
@@ -111,23 +111,7 @@ const CheckoutPage: React.FC = () => {
       
       }
 
-      // Tạo order data để gửi lên backend
-      const createOrderData = {
-        userId: user.id,
-        paymentType: selectedPayment.id === 'vnpay' ? 'VNPAY' : 'COD',
-        items: items.map(item => ({
-          productId: parseInt(item.id),
-          quantity: item.quantity,
-          unitPrice: item.price
-        })),
-       
-      };
-
-      // Gọi API tạo order
-      console.log('Creating order with data:', createOrderData);
-      const orderResult = await createOrder(createOrderData);
-      
-      // Order data để lưu localStorage (UI purpose)
+      // Tạo order data để lưu localStorage (UI purpose)
       const orderData = {
         items,
         shippingInfo,
@@ -137,39 +121,73 @@ const CheckoutPage: React.FC = () => {
         total: finalTotal,
         orderId,
         createdAt: new Date(),
-        backendOrderId: orderResult?.createOrder?.id // Lưu ID từ backend
+        userId: user.id,
+        // Chuẩn bị data để tạo order sau khi thanh toán thành công
+        createOrderData: {
+          userId: user.id,
+          paymentType: selectedPayment.id === 'vnpay' ? 'VNPAY' : 'COD',
+          items: items.map(item => ({
+            productId: parseInt(item.id),
+            quantity: item.quantity,
+            unitPrice: item.price
+          })),
+        }
       };
 
       localStorage.setItem('pendingOrder', JSON.stringify(orderData));
 
       if (selectedPayment?.id === 'vnpay') {
-        // Handle VNPay payment
+        // Handle VNPay payment - chỉ tạo payment URL, chưa tạo order
         const paymentData = {
           orderId,
           amount: finalTotal,
           orderDescription: `Thanh toán đơn hàng ${orderId}`,
           orderType: 'billpayment',
           locale: 'vn',
-          currCode: 'VND'
+          currCode: 'VND',
+          returnUrl: `${window.location.origin}/payment/vnpay-callback`, // Đảm bảo callback URL đúng
+          cancelUrl: `${window.location.origin}/payment/failed`
         };
+
+        console.log('VNPay payment data:', paymentData);
+        console.log('Callback URL will be:', paymentData.returnUrl);
 
         const paymentUrl = await createPaymentUrl(paymentData);
         console.log('Payment URL:', paymentUrl);
         
         if (paymentUrl) {
+          // Redirect tới VNPay để thanh toán
+          // Order sẽ được tạo sau khi thanh toán thành công tại callback
           window.location.href = paymentUrl;
         } else {
           throw new Error(paymentError || 'Không thể tạo link thanh toán VNPay');
         }
-      } else {
-        // Handle COD payment
-        await new Promise(resolve => setTimeout(resolve, 2000));
+      } else if (selectedPayment?.id === 'cod') {
+        // Handle COD payment - tạo order ngay vì COD không cần thanh toán trước
+        console.log('Creating COD order with data:', orderData.createOrderData);
         
-        localStorage.setItem('lastOrder', JSON.stringify(orderData));
-        localStorage.removeItem('pendingOrder');
-        clearCart();
-        // navigate('/order-success');
-        showSuccess('Đặt hàng thành công!');
+        try {
+          const orderResult = await createOrder(orderData.createOrderData);
+          console.log('COD Order created:', orderResult);
+          
+          // Cập nhật orderData với ID từ backend
+          const finalOrderData = {
+            ...orderData,
+            backendOrderId: orderResult?.createOrder?.id,
+            status: 'confirmed'
+          };
+          
+          localStorage.setItem('lastOrder', JSON.stringify(finalOrderData));
+          localStorage.removeItem('pendingOrder');
+          clearCart();
+          showSuccess('Đặt hàng COD thành công!');
+          navigate('/order-success');
+        } catch (error) {
+          console.error('COD Order creation failed:', error);
+          throw new Error('Không thể tạo đơn hàng COD. Vui lòng thử lại.');
+        }
+      } else {
+        showError('Phương thức thanh toán không hợp lệ. Vui lòng thử lại.');
       }
     } catch (error) {
       console.error('Order failed:', error);

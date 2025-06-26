@@ -62,7 +62,14 @@ export const register = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await apiClient.post("/auth/register", userData);
+      // Omit confirmPassword from userData
+      const registerData: Omit<FormSignUp, 'confirmPassword'> = {
+        name: userData.name,
+        email: userData.email,
+        password: userData.password
+      };
+      
+      const response = await apiClient.post("/auth/register", registerData);
       if (!response.data?.data?.user || !response.data?.data?.token) {
         throw new Error("Invalid response from server");
       }

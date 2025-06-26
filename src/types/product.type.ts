@@ -12,6 +12,8 @@
   promo_yn?: boolean;
   new_product_yn?: boolean;
   product_image_cover?: string;
+  stock?: number;
+  in_stock?: boolean;
 }
 
 

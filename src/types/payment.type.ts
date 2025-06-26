@@ -6,6 +6,8 @@ export interface CreatePaymentUrlDto {
   locale?: string;
   currCode?: string;
   clientIp: string;
+  returnUrl?: string;
+  cancelUrl?: string;
 }
 
 export type CreatePaymentUrlRequest = Omit<CreatePaymentUrlDto, 'clientIp'>;
