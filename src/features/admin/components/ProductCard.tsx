@@ -10,7 +10,6 @@ interface ProductCardProps {
   onDelete?: (product: Product) => void;
   deleteLoading?: boolean;
 }
-
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   onView, 
@@ -27,8 +26,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const productPrice = product?.price || product?.current_retail_price || product?.current_wholesale_price || 0;
   const productCategory = product?.category || product?.product_category || product?.product_group || 'Uncategorized';
   const productImage = product?.image || product?.product_image_cover || '';
-  const productStock = product?.stock || 0;
-  const productActive = product?.isActive ?? product?.active ?? true;
+  const productStock =  0;
+  const productActive = true;
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-UK', {

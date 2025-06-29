@@ -1,10 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import type { ZodType } from "zod/v4";
 import type { FormSignUp } from "@/types/auth.type";
 
-const formSchema: ZodType<FormSignUp> = z.object({
+const formSchema = z.object({
   name: z.string().min(1, "Họ và tên là bắt buộc"),
   email: z.string().email("Email không hợp lệ").min(1, "Email là bắt buộc"),
   password: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
@@ -34,7 +33,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, loading = false, erro
         </label>
         <input
           id="name"
-          name="name"
           type="text"
           required
           className="appearance-none relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition duration-200"
@@ -52,7 +50,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, loading = false, erro
         </label>
         <input
           id="email"
-          name="email"
           type="email"
           autoComplete="email"
           required
@@ -71,7 +68,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, loading = false, erro
         </label>
         <input
           id="password"
-          name="password"
           type="password"
           autoComplete="new-password"
           required
@@ -90,7 +86,6 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onSubmit, loading = false, erro
         </label>
         <input
           id="confirmPassword"
-          name="confirmPassword"
           type="password"
           autoComplete="new-password"
           required

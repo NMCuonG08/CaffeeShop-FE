@@ -1,4 +1,4 @@
-import { RootState } from '@/store';
+import type { RootState } from '@/store';
 
 export const selectProducts = (state: RootState) => state.product.products;
 export const selectLoading = (state: RootState) => state.product.loading;

@@ -18,6 +18,9 @@ import OrderFailedPage from '@/pages/checkout/OrderFailedPage';
 import VNPayCallbackPage from '@/pages/checkout/VNPayCallbackPage';
 import OrdersPage from '@/pages/OrdersPage';
 import ProfilePage from '@/pages/ProfilePage';
+
+import AboutPage from '@/pages/AboutPage';
+import ContactPage from '@/pages/ContactPage';
 // import Login from '../pages/Login';
 // import ProductDetail from '../pages/ProductDetail';
 
@@ -29,6 +32,8 @@ const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: 'orders', element: <OrdersPage /> },
       { path: 'profile', element: <ProfilePage /> },
+      { path: 'about', element: <AboutPage /> },
+      { path: 'contact', element: <ContactPage /> },
     ],
     errorElement: <NotFound />,
   },

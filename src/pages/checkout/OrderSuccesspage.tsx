@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Package, Truck, Home, MapPin } from 'lucide-react';
-import type { OrderItem, PaymentType, UserInfo } from '@/types';
+import type { CartItem } from '@/features/cart/types/cart.type';
+import type { PaymentMethod } from '@/features/payment/types/payment.type';
+import type { ShippingInfo } from '@/features/payment/types/payment.type';
 
 interface OrderData {
-  items: OrderItem[];
-  shippingInfo: UserInfo;
-  paymentMethod: PaymentType;
+  items: CartItem[]; // Use CartItem instead of OrderItem
+  shippingInfo: ShippingInfo; // Use ShippingInfo instead of UserInfo
+  paymentMethod: PaymentMethod; // Use PaymentMethod instead of PaymentType
   subtotal: number;
   shippingFee: number;
   total: number;
   orderId: string;
-  createdAt: string;
+  createdAt: string | Date;
+  backendOrderId?: string | number;
 }
 
 const OrderSuccessPage: React.FC = () => {
@@ -21,7 +24,13 @@ const OrderSuccessPage: React.FC = () => {
   useEffect(() => {
     const storedOrder = localStorage.getItem('lastOrder');
     if (storedOrder) {
-      setOrderData(JSON.parse(storedOrder));
+      try {
+        const parsedOrder = JSON.parse(storedOrder);
+        setOrderData(parsedOrder);
+      } catch (error) {
+        console.error('Error parsing order data:', error);
+        navigate('/');
+      }
     } else {
       // Redirect to home if no order data
       navigate('/');
@@ -35,8 +44,9 @@ const OrderSuccessPage: React.FC = () => {
     }).format(amount);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('vi-VN', {
+  const formatDate = (dateString: string | Date) => {
+    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+    return date.toLocaleDateString('vi-VN', {
       year: 'numeric',
       month: 'long',
       day: 'numeric',
@@ -70,6 +80,11 @@ const OrderSuccessPage: React.FC = () => {
           <p className="text-sm text-gray-500">
             Mã đơn hàng: <span className="font-mono font-semibold text-blue-600">#{orderData.orderId}</span>
           </p>
+          {orderData.backendOrderId && (
+            <p className="text-xs text-gray-400 mt-1">
+              ID hệ thống: {orderData.backendOrderId}
+            </p>
+          )}
         </div>
 
         {/* Order Timeline */}
@@ -117,11 +132,14 @@ const OrderSuccessPage: React.FC = () => {
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Chi tiết đơn hàng</h2>
             <div className="space-y-4">
               {orderData.items.map((item, index) => (
-                <div key={index} className="flex items-center space-x-4">
+                <div key={item.id || index} className="flex items-center space-x-4">
                   <img
-                    src={item.image || '/placeholder-image.png'}
+                    src={item.imageUrl || '/placeholder-image.png'}
                     alt={item.name}
                     className="w-16 h-16 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder-image.png';
+                    }}
                   />
                   <div className="flex-1">
                     <h3 className="font-medium text-gray-900">{item.name}</h3>
@@ -177,6 +195,9 @@ const OrderSuccessPage: React.FC = () => {
                   src={orderData.paymentMethod.icon} 
                   alt={orderData.paymentMethod.name}
                   className="h-8 w-8 mr-3"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder-payment.png';
+                  }}
                 />
                 <div>
                   <p className="font-medium">{orderData.paymentMethod.name}</p>
@@ -201,6 +222,33 @@ const OrderSuccessPage: React.FC = () => {
           >
             Xem đơn hàng của tôi
           </button>
+          <button
+            onClick={() => {
+              localStorage.removeItem('lastOrder');
+              navigate('/');
+            }}
+            className="bg-red-100 text-red-700 px-8 py-3 rounded-lg hover:bg-red-200 transition-colors font-medium"
+          >
+            Xóa đơn hàng này
+          </button>
+        </div>
+
+        {/* Help Section */}
+        <div className="mt-12 bg-blue-50 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-blue-900 mb-3">Cần hỗ trợ?</h3>
+          <p className="text-blue-800 mb-4">
+            Nếu bạn có bất kỳ câu hỏi nào về đơn hàng, vui lòng liên hệ với chúng tôi:
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="font-medium text-blue-900">Hotline:</p>
+              <p className="text-blue-800">1900 1234</p>
+            </div>
+            <div>
+              <p className="font-medium text-blue-900">Email:</p>
+              <p className="text-blue-800">support@cafeaurora.com</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -1,10 +1,11 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import {  loginFailure, getUserByToken } from '../slices/auth.slice';
+import { loginFailure, getUserByToken } from '../slices/auth.slice';
+import type { AppDispatch } from '@/store';
 
 const GoogleCallback: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -33,7 +34,7 @@ const GoogleCallback: React.FC = () => {
         // Store token immediately (for apiClient to use)
         localStorage.setItem('token', tokenFromUrl);
 
-        // Sử dụng dispatch thay vì hook
+        // Use dispatch with proper typing
         const result = await dispatch(getUserByToken(tokenFromUrl));
         
         if (getUserByToken.fulfilled.match(result)) {
@@ -41,7 +42,7 @@ const GoogleCallback: React.FC = () => {
           localStorage.removeItem('token');
           navigate('/');
         } else {
-          throw new Error(result.payload || 'Failed to get user data');
+          throw new Error(result.payload as string || 'Failed to get user data');
         }
       } catch (error) {
         console.error('❌ OAuth callback error:', error);
@@ -49,7 +50,8 @@ const GoogleCallback: React.FC = () => {
         // Clean up on error
         localStorage.removeItem('token');
 
-        dispatch(loginFailure('Authentication failed'));
+        const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+        dispatch(loginFailure(errorMessage));
         navigate('/auth/login');
       }
     };

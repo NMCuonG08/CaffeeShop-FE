@@ -96,13 +96,13 @@ const MainLayout: React.FC = () => {
                     { user.picture ? (
                       <img 
                         src={user.picture} 
-                        alt={user.username} 
+                       
                         className="w-8 h-8 rounded-full"
                       />
                     ) : (
                       <User className="h-6 w-6" />
                     )}
-                    <span className="hidden sm:block text-sm font-medium">{user.username}</span>
+                    {/* <span className="hidden sm:block text-sm font-medium">{user.username}</span> */}
                   </span>
                   
                   {/* Dropdown Menu */}

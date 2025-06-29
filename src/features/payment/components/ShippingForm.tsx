@@ -70,14 +70,14 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
 
   const { isAuthenticated, user } = useAuth();
   const { userInfo, loading, error, updating, updateUserInfo } = useUserInfo(
-    user?.id,
+    user?.id || undefined,
   );
 
   // Load user info vào form khi có data
   useEffect(() => {
     if (userInfo && isAuthenticated) {
       const userShippingInfo: ShippingInfo = {
-        fullName: userInfo.fullName || '', // fullname thay vì full_name
+        fullName: userInfo.fullname || '', // Use fullname from UserInfo interface
         email: userInfo.email || user?.email || '',
         phone: userInfo.phone || '',
         address: userInfo.address || '',
@@ -119,7 +119,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     setIsLoadingUserInfo(true);
     try {
       const updateData = {
-        fullName: shippingInfo.fullName,
+        fullname: shippingInfo.fullName, // Map to fullname for UserInfo interface
         email: shippingInfo.email,
         phone: shippingInfo.phone,
         address: shippingInfo.address,
@@ -146,7 +146,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     }
 
     const userShippingInfo: ShippingInfo = {
-      fullName: userInfo.fullName || '', // fullname thay vì full_name
+      fullName: userInfo.fullname || '', // Use fullname from UserInfo interface
       email: userInfo.email || user?.email || '',
       phone: userInfo.phone || '',
       address: userInfo.address || '',
@@ -231,10 +231,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     return validateAllFields();
   }, [validateAllFields]);
 
-  React.useImperativeHandle(React.useRef(), () => ({
-    triggerValidation
-  }));
-
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -272,19 +268,6 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
             >
               <User className={`h-4 w-4 mr-1 ${updating || isLoadingUserInfo ? 'animate-pulse' : ''}`} />
               {updating || isLoadingUserInfo ? 'Đang cập nhật...' : 'Cập nhật hồ sơ'}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                console.log('Validation result:', isFormValid());
-                console.log('Form data:', shippingInfo);
-                console.log('Errors:', errors);
-                const result = validateAllFields();
-                console.log('Full validation:', result);
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded"
-            >
-              Check
             </button>
           </div>
         )}

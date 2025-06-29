@@ -1,5 +1,5 @@
 
-import type { Product } from '@/features/product';
+import type { Product } from '@/types/product.type';
 
 import apiClient from '@/configs/apiClient';
 

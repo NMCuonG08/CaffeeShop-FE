@@ -4,15 +4,31 @@ import { useSearchParams } from 'react-router-dom';
 import { fetchProducts } from '@/features/product';
 import ProductCard from '@/features/product/components/ProductCard';
 import { ChevronDownIcon, FunnelIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import type { RootState, AppDispatch } from '@/store';
+import type { Product } from '@/types';
+
+// Define interface for filters
+interface Filters {
+  category: string;
+  priceRange: string;
+  sortBy: string;
+  search: string;
+}
+
+// Define interface for query parameters
+interface QueryParams extends Filters {
+  page: number;
+  limit: number;
+}
 
 const ProductList: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
   
   // Filter states
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Filters>({
     category: searchParams.get('category') || '',
     priceRange: searchParams.get('priceRange') || '',
     sortBy: searchParams.get('sortBy') || '',
@@ -23,7 +39,7 @@ const ProductList: React.FC = () => {
   const [searchInput, setSearchInput] = useState(filters.search);
   const [showFilters, setShowFilters] = useState(false);
   
-  const { products, loading, error, totalProducts } = useSelector((state) => state.product);
+  const { products, loading, error, totalProducts } = useSelector((state: RootState) => state.product);
   const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
   // Debounce search function
@@ -35,7 +51,7 @@ const ProductList: React.FC = () => {
 
       return () => clearTimeout(timeoutId);
     },
-    [filters]
+    [] // Remove filters dependency to avoid infinite re-renders
   );
 
   // Handle search input change with debounce
@@ -44,7 +60,7 @@ const ProductList: React.FC = () => {
       const cleanup = debounceSearch(searchInput);
       return cleanup;
     }
-  }, [searchInput, debounceSearch]);
+  }, [searchInput, debounceSearch, filters.search]);
 
   // Sample categories - replace with actual categories from your API
   const categories = [
@@ -75,30 +91,32 @@ const ProductList: React.FC = () => {
   ];
 
   useEffect(() => {
-    const queryParams = {
+    const queryParams: QueryParams = {
       page: currentPage,
       limit: itemsPerPage,
       ...filters
     };
     
-    // Remove empty filters
-    Object.keys(queryParams).forEach(key => {
-      if (!queryParams[key]) {
-        delete queryParams[key];
+    // Remove empty filters - create a new object to avoid type issues
+    const cleanParams: Partial<QueryParams> = {};
+    (Object.keys(queryParams) as (keyof QueryParams)[]).forEach(key => {
+      const value = queryParams[key];
+      if (value !== '' && value !== undefined && value !== null) {
+        cleanParams[key] = value;
       }
     });
     
-    dispatch(fetchProducts(queryParams));
+    dispatch(fetchProducts(cleanParams));
   }, [dispatch, currentPage, itemsPerPage, filters]);
 
-  const handleFilterChange = (filterType: string, value: string) => {
+  const handleFilterChange = (filterType: keyof Filters, value: string) => {
     const newFilters = { ...filters, [filterType]: value };
     setFilters(newFilters);
     setCurrentPage(1);
     
     // Update URL
     const newSearchParams = new URLSearchParams();
-    Object.entries(newFilters).forEach(([key, val]) => {
+    (Object.entries(newFilters) as [keyof Filters, string][]).forEach(([key, val]) => {
       if (val) {
         newSearchParams.set(key, val);
       }
@@ -116,7 +134,7 @@ const ProductList: React.FC = () => {
   };
 
   const clearFilters = () => {
-    const clearedFilters = {
+    const clearedFilters: Filters = {
       category: '',
       priceRange: '',
       sortBy: '',
@@ -458,7 +476,7 @@ const ProductList: React.FC = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {products.map((product) => (
+            {products.map((product: Product) => (
               <ProductCard 
                 key={product.product_id} 
                 product={product} 

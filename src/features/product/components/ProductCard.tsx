@@ -16,7 +16,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, loading, getCartItemById } = useCart();
   
   // Check if product already in cart
-  const cartItem = getCartItemById(product.product_id.toString());
+  const cartItem = getCartItemById(product.product_id?.toString() || '');
   const currentQuantityInCart = cartItem?.quantity || 0;
   
   // Check stock availability
@@ -59,27 +59,40 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   const handleBuyNow = () => {
-
-   
+    // Implementation for buy now functionality
+    // You can add validation here similar to addToCart
+    if (!product.product_id || !product.current_retail_price || !product.product) {
+      toast.error('Product information is incomplete');
+      return;
+    }
     
-    // Có thể dispatch setDirectCheckout action và navigate
-    // hoặc pass qua router state
+    // Navigate to checkout or handle buy now logic
+    console.log('Buy now clicked for product:', product.product_id);
   };
+
+  // Early return if essential product data is missing
+  if (!product.product_id || !product.product || !product.current_retail_price) {
+    return (
+      <div className="bg-gray-100 rounded-xl shadow-lg overflow-hidden h-full flex flex-col items-center justify-center p-4">
+        <p className="text-gray-500 text-center">Product information incomplete</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl h-full flex flex-col">
       <div className="relative h-48 overflow-hidden">
         <Link to={`/products/${product.product_id}`} className="block h-full">
-        <img 
-          src={product.product_image_cover || "https://dummyimage.com/150x150/cccccc/000000&text=Coffee"} 
-          alt={product.product}
-          className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          onError={(e) => {
-            e.currentTarget.src = '/placeholder-image.png';
-          }}
-        />
-        
+          <img 
+            src={product.product_image_cover || "https://dummyimage.com/150x150/cccccc/000000&text=Coffee"} 
+            alt={product.product}
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            onError={(e) => {
+              e.currentTarget.src = '/placeholder-image.png';
+            }}
+          />
         </Link>
+        
         {product.new_product_yn && (
           <span className="absolute top-2 right-2 bg-green-500 text-white text-xs font-semibold px-2 py-1 rounded-full uppercase">
             New
@@ -114,8 +127,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       <div className="p-4 flex flex-col flex-grow">
         <div className="flex justify-between items-center mb-2 text-xs text-gray-500">
-          <span className="font-medium">{product.product_group}</span>
-          <span className="italic">{product.product_type}</span>
+          <span className="font-medium">{product.product_group || 'N/A'}</span>
+          <span className="italic">{product.product_type || 'N/A'}</span>
         </div>
 
         <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
@@ -123,12 +136,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </h3>
         
         <p className="text-gray-600 text-sm leading-relaxed mb-3 flex-grow line-clamp-3">
-          {product.product_description}
+          {product.product_description || 'No description available'}
         </p>
         
         <div className="flex justify-between items-center mb-4 text-xs">
           <span className="bg-gray-100 px-2 py-1 rounded-md font-medium text-red-500">
-            {product.unit_of_measure}
+            {product.unit_of_measure || 'N/A'}
           </span>
           <div className="flex items-center gap-2">
             {product.tax_exempt_yn && (
@@ -149,12 +162,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
 
         <div className="bg-gray-50 p-3 rounded-lg mb-4">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-gray-600 text-sm">Wholesale:</span>
-            <span className="text-gray-800 font-medium">
-              ${product.current_wholesale_price}
-            </span>
-          </div>
+          {product.current_wholesale_price && (
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-gray-600 text-sm">Wholesale:</span>
+              <span className="text-gray-800 font-medium">
+                ${product.current_wholesale_price}
+              </span>
+            </div>
+          )}
           <div className="flex justify-between items-center">
             <span className="text-gray-600 text-sm">Retail:</span>
             <span className="text-gray-900 font-semibold text-lg">

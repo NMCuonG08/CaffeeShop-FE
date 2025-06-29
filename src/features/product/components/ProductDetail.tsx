@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useProduct } from '@/features/product/hooks/useProduct';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import FeedBackList from '@/features/product/components/FeedBackList';
@@ -23,16 +23,14 @@ export const ProductDetail = () => {
   const { product, loading, error } = useProduct(productIdNumber);
   const { isAuthenticated, user } = useAuth();
 
-
-
-
   const { addToCart } = useCart();
-  // const cartItem = getCartItemById(product.product_id.toString());
-  // const currentQuantityInCart = cartItem?.quantity || 0;
-
-
 
   const handleAddToCart = async () => {
+    // Validate product data before adding to cart
+    if (!product?.product_id || !product?.current_retail_price || !product?.product) {
+      console.error('Product data is incomplete');
+      return;
+    }
 
     setIsAdding(true);
     try {
@@ -42,7 +40,7 @@ export const ProductDetail = () => {
         productDetails: {
           name: product.product,
           price: product.current_retail_price,
-          imageUrl: product.product_image_cover,
+          imageUrl: product.product_image_cover || null,
           maxQuantity: 10
         }
       });
@@ -50,13 +48,11 @@ export const ProductDetail = () => {
       // showSuccess('Product added to cart successfully!');
       setQuantity(1);
     } catch (error) {
-      toast.error('Failed to add product to cart');
       console.error('Add to cart error:', error);
     } finally {
       setIsAdding(false);
     }
   };
-
 
   if (loading || isAdding) {
     return (
@@ -105,7 +101,6 @@ export const ProductDetail = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-blue-50">
-
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Main Product Section */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden mb-8">
@@ -114,9 +109,12 @@ export const ProductDetail = () => {
             <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 p-8">
               <div className="aspect-square">
                 <img
-                  src={product.product_image_cover}
+                  src={product.product_image_cover || '/placeholder-image.png'}
                   alt={product.product}
                   className="w-full h-full object-cover rounded-2xl shadow-lg"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder-image.png';
+                  }}
                 />
               </div>
 
@@ -144,12 +142,8 @@ export const ProductDetail = () => {
                     🔥 PROMO
                   </span>
                 </div>
-                
               )}
-           
-              
             </div>
-            
 
             {/* Product Info */}
             <div className="p-8 lg:p-12">
@@ -195,7 +189,7 @@ export const ProductDetail = () => {
               <div className="mb-8">
                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  {product.product_description}
+                  {product.product_description || 'No description available'}
                 </p>
               </div>
 
@@ -203,11 +197,11 @@ export const ProductDetail = () => {
               <div className="grid grid-cols-2 gap-4 mb-8">
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <p className="text-sm text-gray-500 mb-1">Type</p>
-                  <p className="font-semibold text-gray-900">{product.product_type}</p>
+                  <p className="font-semibold text-gray-900">{product.product_type || 'N/A'}</p>
                 </div>
                 <div className="p-4 bg-gray-50 rounded-xl">
                   <p className="text-sm text-gray-500 mb-1">Group</p>
-                  <p className="font-semibold text-gray-900">{product.product_group}</p>
+                  <p className="font-semibold text-gray-900">{product.product_group || 'N/A'}</p>
                 </div>
               </div>
 
@@ -234,7 +228,9 @@ export const ProductDetail = () => {
 
                 <button
                   onClick={handleAddToCart}
-                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-[1.02] shadow-lg flex items-center justify-center gap-3">
+                  disabled={!product.product_id || !product.current_retail_price}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 transform hover:scale-[1.02] disabled:hover:scale-100 shadow-lg flex items-center justify-center gap-3"
+                >
                   <ShoppingCartIcon className="w-6 h-6" />
                   Add to Cart
                 </button>
@@ -255,13 +251,25 @@ export const ProductDetail = () => {
           </div>
         </div>
 
-        {/* Reviews Section */}
-        <FeedBackList
-          productId={productIdNumber}
-          feedbacks={product.feedbacks || []}
-          isAuthenticated={isAuthenticated}
-          currentUser={user}
-        />
+        {/* Reviews Section - Only render if user is available */}
+        {isAuthenticated && user ? (
+          <FeedBackList
+            productId={productIdNumber}
+            feedbacks={product.feedbacks || []}
+            isAuthenticated={isAuthenticated}
+            currentUser={user}
+          />
+        ) : (
+          <div className="bg-white rounded-3xl shadow-xl p-8">
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">Customer Reviews</h3>
+              <p className="text-gray-600 mb-6">Please log in to view and add reviews</p>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-3 rounded-lg transition-colors">
+                Log In to View Reviews
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

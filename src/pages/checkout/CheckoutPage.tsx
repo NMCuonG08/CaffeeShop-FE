@@ -31,6 +31,9 @@ const CheckoutPage: React.FC = () => {
   const { isAuthenticated, user } = useAuth(); // Lấy thêm user info
   const { createPaymentUrl, isCreatingPayment, error: paymentError } = useVNPayPayment();
   
+  // Fix: Convert user.id to number if it's a string, or use undefined as fallback
+  const userId = user?.id ? (typeof user.id === 'string' ? parseInt(user.id) : user.id) : undefined;
+  
   // Lấy userInfo để check userInfoId
   const { userInfo, loading, updateUserInfo } = useUserInfo(user?.id);
   const { createOrder, creating } = useOrder(user?.id);
@@ -74,7 +77,7 @@ const CheckoutPage: React.FC = () => {
   const handlePlaceOrder = async () => {
     setValidationErrors([]);
     
-    if (!isAuthenticated || !user?.id) {
+    if (!isAuthenticated || !userId) {
       setValidationErrors(['Vui lòng đăng nhập để đặt hàng']);
       return;
     }
@@ -98,7 +101,7 @@ const CheckoutPage: React.FC = () => {
         console.log('Creating/updating user info...');
         
         const userInfoData = {
-          fullName: shippingInfo.fullName,
+          fullname: shippingInfo.fullName, // Use fullname to match UserInfo interface
           email: shippingInfo.email,
           phone: shippingInfo.phone,
           address: shippingInfo.address,
@@ -108,7 +111,6 @@ const CheckoutPage: React.FC = () => {
         };
 
         await updateUserInfo(userInfoData);
-      
       }
 
       // Tạo order data để lưu localStorage (UI purpose)
@@ -224,7 +226,6 @@ const CheckoutPage: React.FC = () => {
     );
   }
 
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -275,7 +276,6 @@ const CheckoutPage: React.FC = () => {
               onPlaceOrder={handlePlaceOrder}
               isProcessing={isProcessing || isCreatingPayment}
               selectedPayment={selectedPayment}
-              isAuthenticated={isAuthenticated}
               shippingInfo={shippingInfo}
             />
           </div>

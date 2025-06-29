@@ -6,7 +6,7 @@ import {
 import { gql } from '@apollo/client';
 
 import {type UserInfo } from '@/types';
-import {type UPDATE_USER_INFO } from '@/queries';
+import { UPDATE_USER_INFO } from '@/queries';
 
 export const GET_USER_INFO = gql`
   query($userInfoId: Int!){
@@ -25,19 +25,6 @@ export const GET_USER_INFO = gql`
   }
 }`;
 
-export const UPDATE_USER_INFO = gql`
-mutation($updateUserInfoId: Int!, $updateUserInfo: UpdateUserInfoInput!){
-  updateUserInfo(id: $updateUserInfoId, updateUserInfo: $updateUserInfo) {
-    fullName,
-    email,
-    district,
-    phone,
-    city,
-    address,
-    ward
-  }
-}
-`;
 
 
 export const useUserInfo = (userId?: number) => {

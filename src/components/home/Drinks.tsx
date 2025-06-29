@@ -16,14 +16,14 @@ interface DrinksProps {
 
 const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
   const drinksRef = useRef<HTMLDivElement>(null);
-  // const [hoveredCard, setHoveredCard] = useState<number | null>(null);
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const [quantity, setQuantity] = useState(1);
   
   const [isAdding, setIsAdding] = useState(false);
   // Queries
   const { data: products = [], isLoading, error, isError } = useCheapestProducts();
-    const { addToCart } = useCart();
+  const { addToCart } = useCart();
   
 
   const formatCurrency = (amount: number) => {
@@ -139,7 +139,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
       trigger: drinksRef.current,
       start: "top 80%",
       onEnter: () => {
-        if (!hasAnimated.drinks && !isLoading && products.length > 0) {
+        if (!hasAnimated.drinks && !isLoading && Array.isArray(products) && products.length > 0) {
           const drinkCards = drinksRef.current?.querySelectorAll('.drink-card') || [];
           gsap.fromTo(drinkCards,
             {
@@ -164,7 +164,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
         }
       }
     });
-  }, [hasAnimated, setHasAnimated, isLoading, products.length]);
+  }, [hasAnimated, setHasAnimated, isLoading, products]);
 
   if (isLoading || isAdding ) {
     return (
@@ -206,7 +206,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
     );
   }
 
-  if (!products || products.length === 0) {
+  if (!products || !Array.isArray(products) || products.length === 0) {
     return (
       <section className="py-24 px-6 bg-gradient-to-r from-amber-100 to-orange-100">
         <div className="max-w-6xl mx-auto text-center">
@@ -235,7 +235,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.slice(0, 8).map((product) => {
+          {products.slice(0, 8).map((product: Product) => {
             const emoji = getProductEmoji(product.product_category, product.product_type);
             const gradient = getGradientClass(product.product_category, product.promo_yn);
             
@@ -281,8 +281,12 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
                         alt={product.product}
                         className="w-24 h-24 mx-auto object-cover rounded-full shadow-lg"
                         onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'block';
+                          const target = e.currentTarget as HTMLImageElement;
+                          const sibling = target.nextElementSibling as HTMLElement;
+                          target.style.display = 'none';
+                          if (sibling) {
+                            sibling.style.display = 'block';
+                          }
                         }}
                       />
                     ) : null}

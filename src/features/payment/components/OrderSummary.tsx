@@ -31,8 +31,8 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
 
   // Validate shipping info
   const validateShippingInfo = () => {
-    const requiredFields = ['fullName', 'email', 'phone', 'address', 'city', 'district', 'ward'];
-    const emptyFields = requiredFields.filter(field => !shippingInfo[field] || shippingInfo[field].trim() === '');
+    const requiredFields: (keyof ShippingInfo)[] = ['fullName', 'email', 'phone', 'address', 'city', 'district', 'ward'];
+    const emptyFields = requiredFields.filter(field => !shippingInfo[field] || shippingInfo[field]!.trim() === '');
     return emptyFields;
   };
 
@@ -111,6 +111,7 @@ const OrderSummary: React.FC<OrderSummaryProps> = ({
           ))}
         </div>
 
+        {/* Rest of the component remains the same... */}
         {/* Totals */}
         <div className="space-y-2 border-t pt-4">
           <div className="flex justify-between text-sm">

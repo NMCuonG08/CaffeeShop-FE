@@ -129,13 +129,13 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             {order.items.slice(0, 3).map((item) => (
               <div key={item.id} className="flex items-center space-x-2">
                 <img
-                  src={item.product?.image || '/placeholder-product.jpg'}
-                  alt={item.product?.name || 'Product'}
+                  src={item.product?.product_image_cover || '/placeholder-product.jpg'}
+                  alt={item.product?.product || 'Product'}
                   className="w-12 h-12 rounded-lg object-cover"
                 />
                 <div>
                   <p className="font-medium text-gray-900 text-sm">
-                    {item.product?.name}
+                    {item.product?.product}
                   </p>
                   <p className="text-gray-500 text-xs">
                     {item.quantity}x {formatCurrency(item.unitPrice || 0)}
@@ -192,12 +192,12 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                   <div key={item.id} className="p-4 flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={item.product?.image || '/placeholder-product.jpg'}
-                        alt={item.product?.name || 'Product'}
+                        src={item.product?.product_image_cover || '/placeholder-product.jpg'}
+                        alt={item.product?.product || 'Product'}
                         className="w-16 h-16 rounded-lg object-cover"
                       />
                       <div>
-                        <h5 className="font-medium text-gray-900">{item.product?.name}</h5>
+                        <h5 className="font-medium text-gray-900">{item.product?.product}</h5>
                         <p className="text-gray-500 text-sm">Số lượng: {item.quantity}</p>
                       </div>
                     </div>
