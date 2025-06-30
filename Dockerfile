@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy package files
 COPY package.json package-lock.json ./
 
-# Install dependencies
-RUN npm ci --only=production --silent
+# Install ALL dependencies (including dev dependencies for build)
+RUN npm ci --silent
 
 # Copy source code
 COPY . .
@@ -21,9 +21,6 @@ RUN npm run build
 # Stage 2: Serve the application
 FROM nginx:alpine
 
-# Install Node.js in the nginx container (needed for SSR or API calls)
-RUN apk add --no-cache nodejs npm
-
 # Copy built application from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
@@ -33,6 +30,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 # Create nginx user and set permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
     chmod -R 755 /usr/share/nginx/html
+
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 # Expose port 80
 EXPOSE 80
