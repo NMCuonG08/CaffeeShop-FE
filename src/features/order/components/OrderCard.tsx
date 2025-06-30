@@ -180,7 +180,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
               <div className="bg-white p-4 rounded-lg space-y-2 text-sm">
                 <p><span className="font-medium">Người nhận:</span> {order.userInfo.fullName}</p>
                 <p><span className="font-medium">Số điện thoại:</span> {order.userInfo.phone}</p>
-                <p><span className="font-medium">Địa chỉ:</span> {order.userInfo.address}, {order.userInfo.ward}, {order.userInfo.district}, {order.userInfo.city}</p>
+                <p><span className="font-medium">Địa chỉ:</span> {order.userInfo.address}</p>
               </div>
             </div>
 

@@ -12,6 +12,7 @@ import { useAuth } from '@/features/auth/hooks/useAuth';
 import { useOrder } from '@/features/order/hooks/useOrder';
 import { useUserInfo } from '@/features/auth/hooks/useUserInfo';
 import { showError, showSuccess } from '@/components';
+import { PaymentType } from '@/types';
 
 // Import schema để validate
 const shippingSchema = z.object({
@@ -101,7 +102,7 @@ const CheckoutPage: React.FC = () => {
         console.log('Creating/updating user info...');
         
         const userInfoData = {
-          fullname: shippingInfo.fullName, // Use fullname to match UserInfo interface
+          fullName: shippingInfo.fullName, // Use fullname to match UserInfo interface
           email: shippingInfo.email,
           phone: shippingInfo.phone,
           address: shippingInfo.address,
@@ -123,11 +124,11 @@ const CheckoutPage: React.FC = () => {
         total: finalTotal,
         orderId,
         createdAt: new Date(),
-        userId: user.id,
+        userId: user?.id ,
         // Chuẩn bị data để tạo order sau khi thanh toán thành công
         createOrderData: {
-          userId: user.id,
-          paymentType: selectedPayment.id === 'vnpay' ? 'VNPAY' : 'COD',
+          userId: user?.id,
+          paymentType: (selectedPayment.id === 'vnpay' ? PaymentType.VNPAY : PaymentType.COD) as PaymentType,
           items: items.map(item => ({
             productId: parseInt(item.id),
             quantity: item.quantity,

@@ -77,7 +77,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
   useEffect(() => {
     if (userInfo && isAuthenticated) {
       const userShippingInfo: ShippingInfo = {
-        fullName: userInfo.fullname || '', // Use fullname from UserInfo interface
+        fullName: userInfo.fullName || '', // Use fullName from UserInfo interface
         email: userInfo.email || user?.email || '',
         phone: userInfo.phone || '',
         address: userInfo.address || '',
@@ -119,7 +119,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     setIsLoadingUserInfo(true);
     try {
       const updateData = {
-        fullname: shippingInfo.fullName, // Map to fullname for UserInfo interface
+        fullName: shippingInfo.fullName, // Map to fullName for UserInfo interface
         email: shippingInfo.email,
         phone: shippingInfo.phone,
         address: shippingInfo.address,
@@ -146,7 +146,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     }
 
     const userShippingInfo: ShippingInfo = {
-      fullName: userInfo.fullname || '', // Use fullname from UserInfo interface
+      fullName: userInfo.fullName || '', // Use fullName from UserInfo interface
       email: userInfo.email || user?.email || '',
       phone: userInfo.phone || '',
       address: userInfo.address || '',
@@ -227,9 +227,9 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
     }
   }, [shippingInfo]);
 
-  const triggerValidation = useCallback(() => {
-    return validateAllFields();
-  }, [validateAllFields]);
+  // const triggerValidation = useCallback(() => {
+  //   return validateAllFields();
+  // }, [validateAllFields]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-6">
@@ -289,7 +289,7 @@ const ShippingForm: React.FC<ShippingFormProps> = ({ shippingInfo, onChange }) =
           <div className="flex items-center text-green-700">
             <User className="h-4 w-4 mr-2" />
             <span className="text-sm">
-              Thông tin từ hồ sơ: <strong>{userInfo.fullname || 'Chưa có tên'}</strong>
+              Thông tin từ hồ sơ: <strong>{userInfo.fullName || 'Chưa có tên'}</strong>
               {userInfo.phone && <span> • {userInfo.phone}</span>}
             </span>
           </div>

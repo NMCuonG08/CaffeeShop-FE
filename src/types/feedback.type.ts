@@ -14,12 +14,15 @@ export interface Feedback {
     id: number;
     name: string;
     email: string;
+    picture: string;
   };
 }
 
 export  interface  FeedbackCardProps {
   feedback: Feedback;
+  isCurrentUser : boolean;
   index?: number;
+  
 }
 
 export interface CreateFeedbackInput {

@@ -1,36 +1,25 @@
 import type { Product } from './product.type';
+import type { UserInfo } from './user-info.type';
+import type { User } from './user.type';
 
-// Add missing imports
-export interface User {
-  id: number;
-  email: string;
-  name?: string;
-  // Add other user properties as needed
-}
+export const PaymentType = {
+  COD: 'COD',
+  VNPAY: 'VNPAY',
+  MOMO: 'MOMO'
+} as const;
 
-export interface UserInfo {
-  id: number;
-  fullName: string;
-  phone: string;
-  address: string;
-  // Add other user info properties as needed
-}
+export type PaymentType = typeof PaymentType[keyof typeof PaymentType];
 
-// Change const enum to regular enum to fix erasableSyntaxOnly error
-export enum PaymentType {
-  COD = 'COD',
-  VNPAY = 'VNPAY',
-  MOMO = 'MOMO'
-}
+export const OrderStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  PROCESSING: 'PROCESSING',
+  SHIPPING: 'SHIPPING',
+  DELIVERED: 'DELIVERED',
+  CANCELLED: 'CANCELLED'
+} as const;
 
-export enum OrderStatus {
-  PENDING = 'PENDING',
-  CONFIRMED = 'CONFIRMED',
-  PROCESSING = 'PROCESSING',
-  SHIPPING = 'SHIPPING',
-  DELIVERED = 'DELIVERED',
-  CANCELLED = 'CANCELLED'
-}
+export type OrderStatus = typeof OrderStatus[keyof typeof OrderStatus];
 
 export interface OrderItem {
   id: number;
@@ -64,7 +53,7 @@ export interface OrderWithDetails extends Order {
 // ...existing code...
 
 export interface CreateOrderRequest {
-  userId: number;
+  userId?: number;
   paymentType: PaymentType;
   items: CreateOrderItemRequest[];
   // notes?: string;
@@ -73,7 +62,7 @@ export interface CreateOrderRequest {
 export interface CreateOrderItemRequest {
   productId: number;
   quantity: number;
-  unitPrice?: number;
+  unitPrice: number;
 }
 
 export interface UpdateOrderRequest {

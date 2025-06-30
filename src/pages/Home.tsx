@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -7,14 +7,14 @@ import Hero from '@/components/home/Hero';
 import About from '@/components/home/About';
 import Features from '@/components/home/Features';
 import Drinks from '@/components/home/Drinks';
-import ThreeBox from '@/components/common/ThreeBox';
+import type { HasAnimatedState } from '@/types';
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
 
 const Home: React.FC = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [hasAnimated, setHasAnimated] = useState({
+  const [hasAnimated, setHasAnimated] = useState<HasAnimatedState>({
     hero: false,
     about: false,
     process: false,
@@ -28,35 +28,26 @@ const Home: React.FC = () => {
 
   const cursorRef = useRef<HTMLDivElement>(null);
 
-  // Throttle function for better performance
-  const throttle = useCallback(<T extends (...args: unknown[]) => void>(
-    func: T,
-    limit: number
-  ) => {
-    let inThrottle = false;
-    return function (this: unknown, ...args: Parameters<T>) {
-      if (!inThrottle) {
-        func.apply(this, args);
-        inThrottle = true;
-        setTimeout(() => (inThrottle = false), limit);
-      }
-    };
-  }, []);
-
-
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Cursor animation
-      const handleMouseMove = throttle((e: MouseEvent) => {
-        setMousePosition({ x: e.clientX, y: e.clientY });
+      let inThrottle = false;
+      
+      // Cursor animation with throttling
+      const handleMouseMove = (e: MouseEvent) => {
+        if (!inThrottle) {
+          setMousePosition({ x: e.clientX, y: e.clientY });
 
-        gsap.to(cursorRef.current, {
-          x: e.clientX - 12,
-          y: e.clientY - 12,
-          duration: 0.3,
-          ease: "power2.out"
-        });
-      }, 16);
+          gsap.to(cursorRef.current, {
+            x: e.clientX - 12,
+            y: e.clientY - 12,
+            duration: 0.3,
+            ease: "power2.out"
+          });
+
+          inThrottle = true;
+          setTimeout(() => (inThrottle = false), 16);
+        }
+      };
 
       window.addEventListener('mousemove', handleMouseMove);
 
@@ -66,7 +57,7 @@ const Home: React.FC = () => {
     });
 
     return () => ctx.revert();
-  }, [throttle]);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 overflow-hidden relative">
@@ -91,7 +82,7 @@ const Home: React.FC = () => {
 
       {/* Sections */}
       <Hero hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} />
-      <ThreeBox />
+
       <About hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} />
       <Features hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} />
       <Drinks hasAnimated={hasAnimated} setHasAnimated={setHasAnimated} />

@@ -1,10 +1,13 @@
 
-import type { Product } from '@/types/product.type';
+import type { Product ,ProductParams} from '@/types/product.type';
 
 import apiClient from '@/configs/apiClient';
 
-
-export const getProducts = async (params): Promise<Product[]> => {
+interface ProductListResponse {
+  products: Product[];
+  totalProducts: number;
+}
+export const getProducts = async (params: ProductParams): Promise<ProductListResponse> => {
   const response = await apiClient.get("/product/list",{
     params:params
   } );

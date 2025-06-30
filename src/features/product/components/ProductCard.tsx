@@ -41,9 +41,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         productId: product.product_id,
         quantity: quantity,
         productDetails: {
-          name: product.product,
-          price: product.current_retail_price,
-          imageUrl: product.product_image_cover,
+          name: product.product ?? "",
+          price: product?.current_retail_price  ?? 0,
+          imageUrl: product?.product_image_cover ?? "",
           maxQuantity: maxAvailableQuantity
         }
       });

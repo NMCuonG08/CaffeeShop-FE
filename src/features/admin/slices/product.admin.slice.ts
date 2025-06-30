@@ -23,7 +23,6 @@ interface ProductState {
   error: string | null;
   totalProducts: number;
   searchQuery: string;
-  totalProducts: int
 }
 
 interface FetchProductsParams {
@@ -111,7 +110,7 @@ const productSlice = createSlice({
       .addCase(fetchAdminProducts.fulfilled, (state, action) => {
         state.loading = false;
         state.products = action.payload.products || action.payload;
-        state.totalProducts = action.payload.totalProducts || action.payload.length;
+        state.totalProducts = action.payload.totalProducts || action.payload.products.length;
       })
       .addCase(fetchAdminProducts.rejected, (state, action) => {
         state.loading = false;
@@ -150,7 +149,7 @@ const productSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(deleteProduct.fulfilled, (state, action: PayloadAction<number>) => {
         state.loading = false;
         state.products = state.products.filter(product => product.product_id !== action.payload);
         state.totalProducts -= 1;

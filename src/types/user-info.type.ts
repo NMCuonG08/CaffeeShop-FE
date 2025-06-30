@@ -2,7 +2,7 @@ import {type User} from './user.type';
 
 export interface UserInfo {
     id: number;
-    fullname: string;
+    fullName: string;
     email: string;
     phone?: string;
     city?: string;

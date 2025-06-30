@@ -9,7 +9,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolidIcon } from '@heroicons/react/24/solid';
 import { showConfirm, showError, showInfo, showSuccess } from '@/components';
-import FeedbackCard from './FeedbackCard';
+import FeedBackCard from './FeedBackCard';
 import { type Feedback, type User } from '@/types';
 import { Trash } from 'lucide-react';
 
@@ -404,7 +404,7 @@ const FeedBackList: React.FC<FeedBackListProps> = ({
         <div className="space-y-6">
           {displayFeedbacks && displayFeedbacks.length > 0 ? (
             displayFeedbacks.map((feedback, index) => (
-              <FeedbackCard
+              <FeedBackCard
                 key={feedback?.id || index}
                 feedback={feedback}
                 index={index}

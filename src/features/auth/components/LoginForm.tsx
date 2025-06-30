@@ -2,10 +2,9 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import type { ZodType } from "zod/v4";
 import type { FormLogin } from "@/types/auth.type";
 
-const formSchema: ZodType<FormLogin> = z.object({
+const formSchema = z.object({
   email: z.string().email("Email không hợp lệ").min(1, "Email là bắt buộc"),
   password: z.string().min(1, "Mật khẩu phải có ít nhất 6 ký tự"),
 });

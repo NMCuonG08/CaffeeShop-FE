@@ -134,7 +134,7 @@ const OrderSuccessPage: React.FC = () => {
               {orderData.items.map((item, index) => (
                 <div key={item.id || index} className="flex items-center space-x-4">
                   <img
-                    src={item.imageUrl || '/placeholder-image.png'}
+                    src={item.image || '/placeholder-image.png'}
                     alt={item.name}
                     className="w-16 h-16 object-cover rounded-lg"
                     onError={(e) => {

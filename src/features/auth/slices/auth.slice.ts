@@ -2,12 +2,14 @@ import { createAsyncThunk, createSlice,type PayloadAction } from "@reduxjs/toolk
 import apiClient, { setAuthToken } from '@/configs/apiClient';
 
 import type { FormSignUp } from "@/types";
+import { AxiosError } from "axios";
 
 interface User {
-  id: string;
+  id: number;
   email: string;
   firstName?: string;
   lastName?: string;
+   roles: string[] | null; 
   picture?: string;
 }
 
@@ -16,6 +18,7 @@ interface AuthState {
   token: string | null;
   loading: boolean;
   error: string | null;
+
   isAuthenticated: boolean;
 }
 
@@ -49,7 +52,10 @@ export const login = createAsyncThunk(
 
       return { user, token: accessToken };
     } catch (error) {
-      return rejectWithValue(error.response?.data?.message || "Login failed");
+      if (error instanceof AxiosError) {
+    return rejectWithValue(error.response?.data?.message || "Login failed");
+  }
+  return rejectWithValue("Login failed");
     }
   }
 );
@@ -82,9 +88,10 @@ export const register = createAsyncThunk(
       
       return { user, token: accessToken };
     } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || "Registration failed"
-      );
+      if (error instanceof AxiosError) {
+    return rejectWithValue(error.response?.data?.message || "Login failed");
+  }
+  return rejectWithValue("Login failed");
     }
   }
 );
@@ -99,7 +106,10 @@ export const logout = createAsyncThunk(
       return null;
     } catch (error) {
       setAuthToken(null);
-      rejectWithValue(error.response?.data?.message || "Logout failed");
+     if (error instanceof AxiosError) {
+    return rejectWithValue(error.response?.data?.message || "Login failed");
+  }
+  return rejectWithValue("Login failed");
       return null;
     }
   }
@@ -123,9 +133,10 @@ export const getCurrentUser = createAsyncThunk(
       return { user: response.data.data.user, token };
     } catch (error) {
       setAuthToken(null);
-      return rejectWithValue(
-        error.response?.data?.message || "Authentication failed"
-      );
+      if (error instanceof AxiosError) {
+    return rejectWithValue(error.response?.data?.message || "Login failed");
+  }
+  return rejectWithValue("Login failed");
     }
   }
 );
@@ -156,9 +167,10 @@ export const getUserByToken = createAsyncThunk(
       // Clear token on error
       setAuthToken(null);
       
-      return rejectWithValue(
-        error.response?.data?.message || "Failed to fetch user by token"
-      );
+     if (error instanceof AxiosError) {
+    return rejectWithValue(error.response?.data?.message || "Login failed");
+  }
+  return rejectWithValue("Login failed");
     }
   }
 );

@@ -1,13 +1,9 @@
 import React, { useRef, useEffect, useCallback, useState } from 'react';
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ShoppingCart, Heart, Plus, Minus, Zap, Package } from 'lucide-react';
+import { ShoppingCart, Zap, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useCheapestProducts, type Product } from '@/features/product/services/product.query';
 import { toast } from 'react-hot-toast';
 import { useCart } from '@/features/cart/hooks/useCart';
 import type { HasAnimatedState } from '@/types';
-
-gsap.registerPlugin(ScrollTrigger);
 
 interface DrinksProps {
   hasAnimated: { drinks: boolean };
@@ -16,16 +12,40 @@ interface DrinksProps {
 
 const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
   const drinksRef = useRef<HTMLDivElement>(null);
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
-  const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
-  const [quantity, setQuantity] = useState(1);
-  
+  const [currentSlide, setCurrentSlide] = useState(0);
   const [isAdding, setIsAdding] = useState(false);
+  
   // Queries
   const { data: products = [], isLoading, error, isError } = useCheapestProducts();
   const { addToCart } = useCart();
   
+  // Ensure products is an array
+  const productList = Array.isArray(products) ? products : [];
+  
+  // Carousel settings
+  const itemsPerSlide = 4;
+  const totalSlides = Math.ceil(productList.length / itemsPerSlide);
 
+  const nextSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev + 1) % totalSlides);
+  }, [totalSlides]);
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Auto-play carousel
+  useEffect(() => {
+    if (!isLoading && productList.length > itemsPerSlide) {
+      const interval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+      return () => clearInterval(interval);
+    }
+  }, [isLoading, productList.length, nextSlide]);
+  
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',
@@ -33,37 +53,26 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
     }).format(amount * 25000); // Convert to VND (assuming 1 USD = 25000 VND)
   };
 
-  const getQuantity = (productId: number) => quantities[productId] || 1;
+  const getProductEmoji = (category?: string, type?: string) => {
+    const categoryStr = category?.toLowerCase() || '';
+    const typeStr = type?.toLowerCase() || '';
 
-  const updateQuantity = (productId: number, newQuantity: number) => {
-    if (newQuantity >= 1 && newQuantity <= 10) {
-      setQuantities(prev => ({ ...prev, [productId]: newQuantity }));
-    }
+    if (categoryStr.includes('coffee')) return '☕';
+    if (categoryStr.includes('tea')) return '🍵';
+    if (typeStr.includes('syrup')) return '🍯';
+    if (categoryStr.includes('beverage')) return '🥤';
+    return '☕'; // default
   };
 
- const getProductEmoji = (category?: string, type?: string) => {
-  const categoryStr = category?.toLowerCase() || '';
-  const typeStr = type?.toLowerCase() || '';
-
-  if (categoryStr.includes('coffee')) return '☕';
-  if (categoryStr.includes('tea')) return '🍵';
-  if (typeStr.includes('syrup')) return '🍯';
-  if (categoryStr.includes('beverage')) return '🥤';
-  return '☕'; // default
-};
-
-
   const getGradientClass = (category?: string, isPromo?: boolean) => {
-  const categoryStr = category?.toLowerCase() || '';
+    const categoryStr = category?.toLowerCase() || '';
 
-  if (isPromo) return 'from-red-400 to-pink-500';
-  if (categoryStr.includes('coffee')) return 'from-amber-400 to-orange-500';
-  if (categoryStr.includes('tea')) return 'from-green-400 to-emerald-500';
-  if (categoryStr.includes('add-on')) return 'from-purple-400 to-pink-500';
-  return 'from-blue-400 to-cyan-500';
-};
-
-
+    if (isPromo) return 'from-red-400 to-pink-500';
+    if (categoryStr.includes('coffee')) return 'from-amber-400 to-orange-500';
+    if (categoryStr.includes('tea')) return 'from-green-400 to-emerald-500';
+    if (categoryStr.includes('add-on')) return 'from-purple-400 to-pink-500';
+    return 'from-blue-400 to-cyan-500';
+  };
 
   const handleAddToCart = async (product: Product) => {
    setIsAdding(true);
@@ -75,13 +84,12 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
           productDetails: {
             name: product.product,
             price: product.current_retail_price,
-            imageUrl: product.product_image_cover,
+            imageUrl: product.product_image_cover || null,
             maxQuantity: 10 // hoặc từ product data
           }
         });
         
-        toast.success(`Added ${quantity} ${product.product} to cart!`);
-        setQuantity(1); // Reset quantity
+        toast.success(`Added ${product.product} to cart!`);
       } catch (error) {
         toast.error('Failed to add product to cart');
         console.error('Add to cart error:', error);
@@ -90,81 +98,32 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
       }
   };
 
-  const handleCardHover = useCallback((element: HTMLElement, isEnter: boolean, productId: number) => {
-    gsap.killTweensOf(element);
-    
+  const handleCardHover = useCallback((element: HTMLElement, isEnter: boolean) => {
+    // Simple hover effect without GSAP
     if (isEnter) {
-      setHoveredCard(productId);
-      // Giảm hiệu ứng chỉ còn scale nhẹ
-      gsap.to(element, {
-        scale: 1.02,
-        duration: 0.3,
-        ease: "power2.out"
-      });
-      
-      // Chỉ animate quick actions, bỏ card details overlay
-      const quickActions = element.querySelector('.quick-actions');
-      
+      element.style.transform = 'scale(1.02)';
+      const quickActions = element.querySelector('.quick-actions') as HTMLElement;
       if (quickActions) {
-        gsap.to(quickActions, {
-          opacity: 1,
-          y: 0,
-          duration: 0.3,
-          ease: "power2.out"
-        });
+        quickActions.style.opacity = '1';
+        quickActions.style.transform = 'translateY(0)';
       }
     } else {
-      setHoveredCard(null);
-      gsap.to(element, {
-        scale: 1,
-        duration: 0.3,
-        ease: "power2.out"
-      });
-      
-      const quickActions = element.querySelector('.quick-actions');
-      
+      element.style.transform = 'scale(1)';
+      const quickActions = element.querySelector('.quick-actions') as HTMLElement;
       if (quickActions) {
-        gsap.to(quickActions, {
-          opacity: 0,
-          y: 10,
-          duration: 0.2,
-          ease: "power2.out"
-        });
+        quickActions.style.opacity = '0';
+        quickActions.style.transform = 'translateY(10px)';
       }
     }
   }, []);
 
+  // Remove GSAP animation effect
   useEffect(() => {
-    ScrollTrigger.create({
-      trigger: drinksRef.current,
-      start: "top 80%",
-      onEnter: () => {
-        if (!hasAnimated.drinks && !isLoading && Array.isArray(products) && products.length > 0) {
-          const drinkCards = drinksRef.current?.querySelectorAll('.drink-card') || [];
-          gsap.fromTo(drinkCards,
-            {
-              y: 100,
-              opacity: 0,
-              scale: 0.8,
-              rotationY: -45
-            },
-            {
-              y: 0,
-              opacity: 1,
-              scale: 1,
-              rotationY: 0,
-              duration: 1.2,
-              stagger: 0.15,
-              ease: "back.out(1.4)",
-              onComplete: () => {
-                setHasAnimated((prev) => ({ ...prev, drinks: true }));
-              }
-            }
-          );
-        }
-      }
-    });
-  }, [hasAnimated, setHasAnimated, isLoading, products]);
+    // Set animated to true since we're not using animations
+    if (!hasAnimated.drinks) {
+      setHasAnimated((prev) => ({ ...prev, drinks: true }));
+    }
+  }, [hasAnimated.drinks, setHasAnimated]);
 
   if (isLoading || isAdding ) {
     return (
@@ -206,7 +165,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
     );
   }
 
-  if (!products || !Array.isArray(products) || products.length === 0) {
+  if (!productList || productList.length === 0) {
     return (
       <section className="py-24 px-6 bg-gradient-to-r from-amber-100 to-orange-100">
         <div className="max-w-6xl mx-auto text-center">
@@ -217,7 +176,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
   }
 
   return (
-    <section ref={drinksRef} className="py-24 px-6 bg-gradient-to-r from-amber-100 to-orange-100 relative overflow-hidden">
+    <section ref={drinksRef} className="py-24 px-6 bg-coffee-primary relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-r from-amber-300/20 to-orange-300/20 rounded-full blur-3xl animate-pulse" />
@@ -226,7 +185,7 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
 
       <div className="max-w-6xl mx-auto relative z-10">
         <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6 bg-gradient-to-r from-amber-700 to-orange-700 bg-clip-text text-transparent">
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-800 mb-6">
             ☕ Sản Phẩm Giá Tốt
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
@@ -234,163 +193,154 @@ const Drinks: React.FC<DrinksProps> = ({ hasAnimated, setHasAnimated }) => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {products.slice(0, 8).map((product: Product) => {
-            const emoji = getProductEmoji(product.product_category, product.product_type);
-            const gradient = getGradientClass(product.product_category, product.promo_yn);
-            
-            return (
-              <div
-                key={product.product_id}
-                className="drink-card bg-white/95 backdrop-blur-sm rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden cursor-pointer transform-gpu"
-                onMouseEnter={(e) => handleCardHover(e.currentTarget, true, product.product_id)}
-                onMouseLeave={(e) => handleCardHover(e.currentTarget, false, product.product_id)}
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Carousel Items */}
+          <div className="overflow-hidden rounded-2xl">
+            <div 
+              className="flex transition-transform duration-500 ease-in-out"
+              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
+            >
+              {/* Split products into slides */}
+              {Array.from({ length: totalSlides }, (_, slideIndex) => (
+                <div key={slideIndex} className="w-full flex-shrink-0">
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
+                    {productList
+                      .slice(slideIndex * itemsPerSlide, (slideIndex + 1) * itemsPerSlide)
+                      .map((product: Product) => {
+                        const emoji = getProductEmoji(product.product_category, product.product_type);
+                        const gradient = getGradientClass(product.product_category, product.promo_yn);
+                        
+                        return (
+                          <div
+                            key={product.product_id}
+                            className="drink-card coffee-card group relative overflow-hidden cursor-pointer transform-gpu transition-all duration-300"
+                            onMouseEnter={(e) => handleCardHover(e.currentTarget, true)}
+                            onMouseLeave={(e) => handleCardHover(e.currentTarget, false)}
+                            style={{ transition: 'transform 0.3s ease' }}
+                          >
+                            {/* Gradient overlay */}
+                            <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-all duration-500`} />
+                            
+                            {/* Badges */}
+                            <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
+                              {product.promo_yn && (
+                                <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                  <Zap className="w-3 h-3" />
+                                  PROMO
+                                </div>
+                              )}
+                              {product.new_product_yn && (
+                                <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                  NEW
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Stock indicator */}
+                            <div className="absolute top-4 left-4 z-20">
+                              <div className="flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
+                                <Package className="w-3 h-3 text-green-600" />
+                                <span className="text-green-600 font-medium">{product.stock}</span>
+                              </div>
+                            </div>
+
+                            {/* Product content - same as before but shortened for carousel */}
+                            <div className="relative p-6 text-center">
+                              <div className="text-6xl mb-3 group-hover:scale-110 transition-transform duration-300">
+                                {product.product_image_cover ? (
+                                  <img 
+                                    src={product.product_image_cover} 
+                                    alt={product.product}
+                                    className="w-16 h-16 mx-auto object-cover rounded-full shadow-lg"
+                                    onError={(e) => {
+                                      const target = e.currentTarget as HTMLImageElement;
+                                      const sibling = target.nextElementSibling as HTMLElement;
+                                      target.style.display = 'none';
+                                      if (sibling) sibling.style.display = 'block';
+                                    }}
+                                  />
+                                ) : null}
+                                <div className="text-6xl" style={{ display: product.product_image_cover ? 'none' : 'block' }}>
+                                  {emoji}
+                                </div>
+                              </div>
+
+                              <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-1">
+                                {product.product}
+                              </h3>
+
+                              <div className="flex items-center justify-center gap-2 mb-3">
+                                <span className="text-amber-600 font-bold text-xl">
+                                  {formatCurrency(product.current_retail_price)}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Quick actions */}
+                            <div className="quick-actions absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-white via-white/95 to-transparent opacity-0 translate-y-2 transition-all duration-300">
+                              <button
+                                onClick={() => handleAddToCart(product)}
+                                disabled={isLoading || product.stock === 0}
+                                className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-2 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50"
+                              >
+                                {isLoading ? (
+                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                ) : product.stock === 0 ? (
+                                  <span className="text-xs">Hết hàng</span>
+                                ) : (
+                                  <>
+                                    <ShoppingCart className="w-4 h-4" />
+                                    <span className="text-sm">Thêm vào giỏ</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          {totalSlides > 1 && (
+            <>
+              <button
+                onClick={prevSlide}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-16 h-16 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-20"
               >
-                {/* Gradient overlay */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-10 transition-all duration-500`} />
-                
-                {/* Badges */}
-                <div className="absolute top-4 right-4 z-20 flex flex-col gap-2">
-                  {product.promo_yn && (
-                    <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                      <Zap className="w-3 h-3" />
-                      PROMO
-                    </div>
-                  )}
-                  {product.new_product_yn && (
-                    <div className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                      NEW
-                    </div>
-                  )}
-                </div>
-
-                {/* Stock indicator */}
-                <div className="absolute top-4 left-4 z-20">
-                  <div className="flex items-center gap-1 bg-white/80 backdrop-blur-sm rounded-full px-2 py-1 text-xs">
-                    <Package className="w-3 h-3 text-green-600" />
-                    <span className="text-green-600 font-medium">{product.stock}</span>
-                  </div>
-                </div>
-
-                {/* Product image/emoji */}
-                <div className="relative p-8 text-center">
-                  <div className="text-8xl mb-4 group-hover:scale-110 transition-transform duration-300 relative">
-                    {product.product_image_cover ? (
-                      <img 
-                        src={product.product_image_cover} 
-                        alt={product.product}
-                        className="w-24 h-24 mx-auto object-cover rounded-full shadow-lg"
-                        onError={(e) => {
-                          const target = e.currentTarget as HTMLImageElement;
-                          const sibling = target.nextElementSibling as HTMLElement;
-                          target.style.display = 'none';
-                          if (sibling) {
-                            sibling.style.display = 'block';
-                          }
-                        }}
-                      />
-                    ) : null}
-                    <div className="text-8xl" style={{ display: product.product_image_cover ? 'none' : 'block' }}>
-                      {emoji}
-                    </div>
-                  </div>
-
-                  {/* Product category */}
-                  <div className="text-xs text-gray-500 mb-2 uppercase tracking-wide">
-                    {product.product_category} • {product.product_type}
-                  </div>
-
-                  <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-amber-700 transition-colors line-clamp-2">
-                    {product.product}
-                  </h3>
-
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-2">
-                    {product.product_description}
-                  </p>
-
-                  {/* Unit of measure */}
-                  {product.unit_of_measure && (
-                    <div className="text-xs text-amber-600 mb-2 font-medium">
-                      Đơn vị: {product.unit_of_measure}
-                    </div>
-                  )}
-
-                  {/* Price */}
-                  <div className="flex items-center justify-center gap-2 mb-4">
-                    <span className="text-amber-600 font-bold text-2xl group-hover:text-amber-700 transition-colors">
-                      {formatCurrency(product.current_retail_price)}
-                    </span>
-                    {product.current_wholesale_price !== product.current_retail_price && (
-                      <span className="text-gray-400 line-through text-sm">
-                        {formatCurrency(product.current_wholesale_price)}
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Quick actions - Hiện ở bottom khi hover, không che nội dung */}
-                <div className="quick-actions absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white/95 to-transparent opacity-0 translate-y-2 transition-all duration-300">
-                  {/* Quantity selector */}
-                  <div className="flex items-center justify-center gap-3 mb-3">
-                    <button
-                      onClick={() => updateQuantity(product.product_id, getQuantity(product.product_id) - 1)}
-                      className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      disabled={getQuantity(product.product_id) <= 1}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    
-                    <span className="w-8 text-center font-semibold">
-                      {getQuantity(product.product_id)}
-                    </span>
-                    
-                    <button
-                      onClick={() => updateQuantity(product.product_id, getQuantity(product.product_id) + 1)}
-                      className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                      disabled={getQuantity(product.product_id) >= Math.min(10, product.stock)}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-
-                  {/* Action buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleAddToCart(product)}
-                      disabled={isLoading || product.stock === 0}
-                      className="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-semibold py-2.5 px-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isLoading ? (
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      ) : product.stock === 0 ? (
-                        <span className="text-xs">Hết hàng</span>
-                      ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4" />
-                          <span className="text-xs">Thêm</span>
-                        </>
-                      )}
-                    </button>
-                    
-                    <button className="w-10 h-10 bg-white/90 hover:bg-white text-red-500 rounded-xl transition-all duration-300 flex items-center justify-center shadow-lg hover:shadow-xl">
-                      <Heart className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Bỏ card details overlay hoặc chỉ hiện thông tin nhỏ ở góc */}
-                <div className="absolute top-4 left-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <div className="bg-black/70 backdrop-blur-sm text-white p-2 rounded-lg text-xs max-w-[150px]">
-                    <p><span className="text-amber-400">Tồn kho:</span> {product.stock}</p>
-                    {product.tax_exempt_yn && (
-                      <p className="text-green-400">✓ Miễn thuế</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+                <ChevronLeft className="w-10 h-10" />
+              </button>
+              
+              <button
+                onClick={nextSlide}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-16 h-16 bg-white/90 hover:bg-white text-gray-800 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-20"
+              >
+                <ChevronRight className="w-10 h-10" />
+              </button>
+            </>
+          )}
         </div>
+
+        {/* Dots Indicator */}
+        {totalSlides > 1 && (
+          <div className="flex justify-center mt-8 gap-2">
+            {Array.from({ length: totalSlides }, (_, index) => (
+              <button
+                key={index}
+                onClick={() => goToSlide(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  currentSlide === index 
+                    ? 'bg-amber-500 w-8' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         {/* View all products button */}
         <div className="text-center mt-16">

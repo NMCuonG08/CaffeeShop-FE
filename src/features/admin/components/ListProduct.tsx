@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Plus, Search, Coffee } from 'lucide-react';
 import { fetchAdminProducts, addProduct,updateProduct, deleteProduct } from '../slices/product.admin.slice';
@@ -8,7 +8,7 @@ import Pagination from './Pagination';
 import AddProductModal from './AddProductModal';
 import EditProductModal from './EditProductModal';
 import { Loading, showSuccess } from '@/components';
-import type { Product } from '@/types';
+import type { Product ,ProductFormData} from '@/types';
 
 const ListProduct = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -39,7 +39,7 @@ const ListProduct = () => {
 
   // Filter products
   const filteredProducts = safeProducts.filter(product => {
-    const productName = product?.name || product?.product || product?.product_name || '';
+    const productName =  product?.product  || '';
     return productName.toLowerCase().includes(searchTerm.toLowerCase());
   });
 
@@ -48,25 +48,28 @@ const ListProduct = () => {
     setIsAddModalOpen(true);
   };
 
-  const handleAddProductSubmit = async (data: Product) => {
+  const handleAddProductSubmit = async (data:ProductFormData) => {
     try {
       setAddLoading(true);
 
       const formData = new FormData();
       
-      formData.append('product', data.product);
-      formData.append('product_description', data.product_description);
-      formData.append('current_retail_price', data.current_retail_price.toString());
-      formData.append('product_category', data.product_category);
-      formData.append('product_group', data.product_group);
+      // Add required fields
+      formData.append('product', data.product || '');
+      formData.append('product_description', data.product_description || '');
+      formData.append('current_retail_price', data.current_retail_price?.toString() || '');
+      formData.append('product_category', data.product_category || '');
+      formData.append('product_group', data.product_group || '');
       
+      // Add optional fields only if they exist
       if (data.product_type) formData.append('product_type', data.product_type);
       if (data.unit_of_measure) formData.append('unit_of_measure', data.unit_of_measure);
-      if (data.current_wholesale_price) formData.append('current_wholesale_price', data.current_wholesale_price.toString());
+      if (data.current_wholesale_price !== undefined) formData.append('current_wholesale_price', data.current_wholesale_price?.toString());
       
-      formData.append('tax_exempt_yn', data.tax_exempt_yn.toString());
-      formData.append('promo_yn', data.promo_yn.toString());
-      formData.append('new_product_yn', data.new_product_yn.toString());
+      // Add boolean fields
+      formData.append('tax_exempt_yn', data.tax_exempt_yn?.toString()|| '');
+      formData.append('promo_yn', data.promo_yn?.toString()|| '');
+      formData.append('new_product_yn', data.new_product_yn?.toString()|| '');
       
       if (data.imageFile) {
         formData.append('image', data.imageFile);
@@ -84,7 +87,7 @@ const ListProduct = () => {
     }
   };
 
-  const handleViewProduct = (product: any) => {
+  const handleViewProduct = (product: Product) => {
     console.log('View product:', product);
     // TODO: Navigate to product detail page or open modal
   };
@@ -95,40 +98,38 @@ const ListProduct = () => {
     setIsEditModalOpen(true);
   };
 
-    const handleEditProductSubmit = async (data: ProductFormData & { product_id?: string; imageFile?: File }) => {
+  const handleEditProductSubmit = async (data:Product) => {
     try {
       setEditLoading(true);
 
       const formData = new FormData();
       
-      // Get product ID from selectedProduct, not from data
-      const productId = selectedProduct?.product_id?.toString();
-      
-      if (!productId) {
-        throw new Error('Product ID is required for update');
-      }
+      // Add product ID for update
+      formData.append('product_id', data.product_id.toString());
       
       // Add form fields
-      formData.append('product', data.product);
-      formData.append('product_description', data.product_description);
-      formData.append('current_retail_price', data.current_retail_price.toString());
-      formData.append('product_category', data.product_category);
-      formData.append('product_group', data.product_group);
+      formData.append('product', data.product || '');
+      formData.append('product_description', data.product_description || '');
+      formData.append('current_retail_price', data.current_retail_price?.toString() || '');
+      formData.append('product_category', data.product_category || '');
+      formData.append('product_group', data.product_group || '');
       
+      // Add optional fields only if they exist
       if (data.product_type) formData.append('product_type', data.product_type);
       if (data.unit_of_measure) formData.append('unit_of_measure', data.unit_of_measure);
-      if (data.current_wholesale_price) formData.append('current_wholesale_price', data.current_wholesale_price.toString());
+      if (data.current_wholesale_price !== undefined) formData.append('current_wholesale_price', data.current_wholesale_price?.toString());
       
-      formData.append('tax_exempt_yn', data.tax_exempt_yn.toString());
-      formData.append('promo_yn', data.promo_yn.toString());
-      formData.append('new_product_yn', data.new_product_yn.toString());
+      // Add boolean fields
+      formData.append('tax_exempt_yn', data.tax_exempt_yn?.toString()|| '');
+      formData.append('promo_yn', data.promo_yn?.toString()|| '');
+      formData.append('new_product_yn', data.new_product_yn?.toString()|| '');
       
       // Add image file if changed
       if (data.imageFile) {
         formData.append('image', data.imageFile);
       }
       
-      console.log("Product ID:", productId);
+      const productId = data.product_id.toString();
       
       await dispatch(updateProduct({ formData, productId })).unwrap();
       
@@ -144,8 +145,9 @@ const ListProduct = () => {
     }
   };
 
-  const handleDeleteProduct = async (product_id: string) => {
+  const handleDeleteProduct = async (product: Product) => {
     try {
+        const product_id = product.product_id.toString();
         await dispatch(deleteProduct(product_id)).unwrap();
         dispatch(fetchAdminProducts({ page: currentPage, limit }));
         showSuccess('Product deleted successfully!');
@@ -259,16 +261,18 @@ const ListProduct = () => {
       />
 
       {/* Edit Product Modal */}
-      <EditProductModal
-        isOpen={isEditModalOpen}
-        onClose={() => {
-          setIsEditModalOpen(false);
-          setSelectedProduct(null);
-        }}
-        onSubmit={handleEditProductSubmit}
-        loading={editLoading}
-        product={selectedProduct}
-      />
+      {selectedProduct && (
+        <EditProductModal
+          isOpen={isEditModalOpen}
+          onClose={() => {
+            setIsEditModalOpen(false);
+            setSelectedProduct(null);  
+          }}
+          onSubmit={handleEditProductSubmit}
+          loading={editLoading}
+          product={selectedProduct}
+        />
+      )}
     </>
   );
 };

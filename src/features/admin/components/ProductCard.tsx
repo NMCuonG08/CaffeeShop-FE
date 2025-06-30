@@ -20,12 +20,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Flexible property mapping
-  // const productId = product?.product_id || product?._id || product?.id;
-  const productName = product?.name || product?.product || product?.product_name || 'Unnamed Product';
-  const productDesc = product?.description || product?.product_description || 'No description available';
-  const productPrice = product?.price || product?.current_retail_price || product?.current_wholesale_price || 0;
-  const productCategory = product?.category || product?.product_category || product?.product_group || 'Uncategorized';
-  const productImage = product?.image || product?.product_image_cover || '';
+  const productName =  product?.product  || 'Unnamed Product';
+  const productDesc =  product?.product_description || 'No description available';
+  const productPrice = product?.current_retail_price || product?.current_wholesale_price || 0;
+  const productCategory = product?.product_category || product?.product_group || 'Uncategorized';
+  const productImage =  product?.product_image_cover || '';
   const productStock =  0;
   const productActive = true;
 
@@ -41,7 +40,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const handleDeleteConfirm = () => {
-    onDelete?.(product.product_id);
+    onDelete?.(product);
     setShowDeleteConfirm(false);
   };
 

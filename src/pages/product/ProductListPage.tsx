@@ -26,7 +26,7 @@ const ProductList: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(8);
-  
+
   // Filter states
   const [filters, setFilters] = useState<Filters>({
     category: searchParams.get('category') || '',
@@ -34,11 +34,11 @@ const ProductList: React.FC = () => {
     sortBy: searchParams.get('sortBy') || '',
     search: searchParams.get('search') || ''
   });
-  
+
   // Separate search input state for debouncing
   const [searchInput, setSearchInput] = useState(filters.search);
   const [showFilters, setShowFilters] = useState(false);
-  
+
   const { products, loading, error, totalProducts } = useSelector((state: RootState) => state.product);
   const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
@@ -46,12 +46,23 @@ const ProductList: React.FC = () => {
   const debounceSearch = useCallback(
     (searchTerm: string) => {
       const timeoutId = setTimeout(() => {
-        handleFilterChange('search', searchTerm);
+        setFilters(prevFilters => ({ ...prevFilters, search: searchTerm }));
+        setCurrentPage(1);
+
+        // Update URL
+        const newSearchParams = new URLSearchParams();
+        const newFilters = { ...filters, search: searchTerm };
+        (Object.entries(newFilters) as [keyof Filters, string][]).forEach(([key, val]) => {
+          if (val) {
+            newSearchParams.set(key, val);
+          }
+        });
+        setSearchParams(newSearchParams);
       }, 1000); // 1000ms delay
 
       return () => clearTimeout(timeoutId);
     },
-    [] // Remove filters dependency to avoid infinite re-renders
+    [filters, setSearchParams] // Include necessary dependencies
   );
 
   // Handle search input change with debounce
@@ -96,16 +107,17 @@ const ProductList: React.FC = () => {
       limit: itemsPerPage,
       ...filters
     };
-    
+
     // Remove empty filters - create a new object to avoid type issues
-    const cleanParams: Partial<QueryParams> = {};
+    const cleanParams: Record<string, string | number> = {};
+
     (Object.keys(queryParams) as (keyof QueryParams)[]).forEach(key => {
       const value = queryParams[key];
       if (value !== '' && value !== undefined && value !== null) {
         cleanParams[key] = value;
       }
     });
-    
+
     dispatch(fetchProducts(cleanParams));
   }, [dispatch, currentPage, itemsPerPage, filters]);
 
@@ -113,7 +125,7 @@ const ProductList: React.FC = () => {
     const newFilters = { ...filters, [filterType]: value };
     setFilters(newFilters);
     setCurrentPage(1);
-    
+
     // Update URL
     const newSearchParams = new URLSearchParams();
     (Object.entries(newFilters) as [keyof Filters, string][]).forEach(([key, val]) => {
@@ -156,10 +168,10 @@ const ProductList: React.FC = () => {
 
     const pages = [];
     const maxVisiblePages = 5;
-    
+
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     const endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-    
+
     if (endPage - startPage + 1 < maxVisiblePages) {
       startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
@@ -187,7 +199,7 @@ const ProductList: React.FC = () => {
           1
         </button>
       );
-      
+
       if (startPage > 2) {
         pages.push(
           <span key="dots1" className="px-3 py-2 mx-1 text-gray-500">
@@ -203,11 +215,10 @@ const ProductList: React.FC = () => {
         <button
           key={page}
           onClick={() => handlePageChange(page)}
-          className={`px-3 py-2 mx-1 text-sm font-medium rounded-md ${
-            currentPage === page
+          className={`px-3 py-2 mx-1 text-sm font-medium rounded-md ${currentPage === page
               ? 'text-white bg-blue-600 border-blue-600'
               : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
-          }`}
+            }`}
         >
           {page}
         </button>
@@ -223,7 +234,7 @@ const ProductList: React.FC = () => {
           </span>
         );
       }
-      
+
       pages.push(
         <button
           key={totalPages}
@@ -270,7 +281,7 @@ const ProductList: React.FC = () => {
       <div className="text-center p-8 bg-red-50 rounded-lg text-red-600">
         <h3 className="text-lg font-semibold mb-2">Có lỗi xảy ra</h3>
         <p className="mb-4">Lỗi: {error}</p>
-        <button 
+        <button
           onClick={() => dispatch(fetchProducts({ page: currentPage, limit: itemsPerPage }))}
           className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition-colors"
         >
@@ -294,8 +305,8 @@ const ProductList: React.FC = () => {
               <FunnelIcon className="h-5 w-5 mr-2" />
               Bộ lọc
             </span>
-            <ChevronDownIcon 
-              className={`h-5 w-5 transform transition-transform ${showFilters ? 'rotate-180' : ''}`} 
+            <ChevronDownIcon
+              className={`h-5 w-5 transform transition-transform ${showFilters ? 'rotate-180' : ''}`}
             />
           </button>
         </div>
@@ -451,7 +462,7 @@ const ProductList: React.FC = () => {
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-900 mb-2">Danh sách sản phẩm</h2>
         <p className="text-gray-600">
-          Trang {currentPage} / {totalPages || 1} - 
+          Trang {currentPage} / {totalPages || 1} -
           Hiển thị {products.length} trong tổng số {totalProducts || 0} sản phẩm
         </p>
       </div>
@@ -477,16 +488,16 @@ const ProductList: React.FC = () => {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product: Product) => (
-              <ProductCard 
-                key={product.product_id} 
-                product={product} 
+              <ProductCard
+                key={product.product_id}
+                product={product}
               />
             ))}
           </div>
-          
+
           {/* Pagination */}
           {renderPagination()}
-          
+
           {/* Items per page info */}
           <div className="text-center mt-4 text-sm text-gray-500">
             <span>Hiển thị {itemsPerPage} sản phẩm mỗi trang</span>
