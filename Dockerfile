@@ -5,7 +5,7 @@ FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
-
+COPY .env.production .env.production
 # Copy package files
 COPY package.json package-lock.json ./
 
