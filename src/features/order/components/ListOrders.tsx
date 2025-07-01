@@ -1,7 +1,7 @@
 import React from 'react';
 import OrderCard from './OrderCard';
 import { Package } from 'lucide-react';
-import { useOrder } from '../hooks/useOrder';
+import { useOrder } from '@/features/order/hooks/useOrder';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 
 interface ListOrdersProps {

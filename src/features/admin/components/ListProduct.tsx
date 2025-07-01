@@ -1,12 +1,12 @@
 import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Plus, Search, Coffee } from 'lucide-react';
-import { fetchAdminProducts, addProduct,updateProduct, deleteProduct } from '../slices/product.admin.slice';
+import { fetchAdminProducts, addProduct,updateProduct, deleteProduct } from '@/features/admin/slices/product.admin.slice';
 import type { RootState, AppDispatch } from '@/store';
 import ProductGrid from './ProductGrid';
 import Pagination from './Pagination';
-import AddProductModal from './AddProductModal';
-import EditProductModal from './EditProductModal';
+import AddProductModal from '@/features/admin/components/AddProductModal';
+import EditProductModal from '@/features/admin/components/EditProductModal';
 import { Loading, showSuccess } from '@/components';
 import type { Product ,ProductFormData} from '@/types';
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useCart } from '../hooks/useCart';
+import { useCart } from '@/features/cart/hooks/useCart';
+import { formatVNDAsUSD } from '@/utils';
 import { X, Plus, Minus, Trash2, ShoppingBag, Coffee } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -41,10 +42,7 @@ const CartModal: React.FC<CartModalProps> = ({ isOpen, onClose }) => {
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount * 25000);
+    return formatVNDAsUSD(amount);
   };
 
   return (

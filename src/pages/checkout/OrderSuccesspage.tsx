@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatCurrency, formatDate } from '@/utils';
 import { CheckCircle, Package, Truck, Home, MapPin } from 'lucide-react';
 import type { CartItem } from '@/features/cart/types/cart.type';
 import type { PaymentMethod } from '@/features/payment/types/payment.type';
@@ -37,23 +38,7 @@ const OrderSuccessPage: React.FC = () => {
     }
   }, [navigate]);
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('vi-VN', {
-      style: 'currency',
-      currency: 'VND'
-    }).format(amount);
-  };
-
-  const formatDate = (dateString: string | Date) => {
-    const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
-    return date.toLocaleDateString('vi-VN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  // Remove duplicate utility functions - now using imported ones
 
   if (!orderData) {
     return (

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Coffee, Plus } from 'lucide-react';
-import ProductCard from './ProductCard';
+import ProductCard from '@/features/admin/components/ProductCard';
 import type { Product } from '@/types';
 
 interface ProductGridProps {

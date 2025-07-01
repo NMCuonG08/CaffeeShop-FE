@@ -1,12 +1,9 @@
 import type { Product } from './product.type';
 import type { UserInfo } from './user-info.type';
 import type { User } from './user.type';
+import { PAYMENT_TYPES } from '@/constants';
 
-export const PaymentType = {
-  COD: 'COD',
-  VNPAY: 'VNPAY',
-  MOMO: 'MOMO'
-} as const;
+export const PaymentType = PAYMENT_TYPES;
 
 export type PaymentType = typeof PaymentType[keyof typeof PaymentType];
 

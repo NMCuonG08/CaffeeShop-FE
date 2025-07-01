@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import  {type Order, OrderStatus, PaymentType } from '@/types/order.type';
+import  {type Order, OrderStatus } from '@/types/order.type';
+import { formatCurrency, formatDateShort, getPaymentTypeLabel } from '@/utils';
 import { ChevronDown, ChevronUp, Calendar, CreditCard, MapPin, Package } from 'lucide-react';
 
 interface OrderCardProps {
@@ -56,31 +57,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     }
   };
 
-  const getPaymentTypeLabel = (paymentType: PaymentType) => {
-    switch (paymentType) {
-      case PaymentType.COD:
-        return 'Thanh toán khi nhận hàng';
-      case PaymentType.VNPAY:
-        return 'VNPay';
-      case PaymentType.MOMO:
-        return 'MoMo';
-      default:
-        return paymentType;
-    }
-  };
-
   const statusConfig = getStatusConfig(order.status);
-  const formatCurrency = (amount: number) => 
-    new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
   
   const formatDate = (date: Date) => 
-    new Intl.DateTimeFormat('vi-VN', { 
-      year: 'numeric', 
-      month: '2-digit', 
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(date));
+    formatDateShort(date);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">

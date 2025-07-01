@@ -1,10 +1,10 @@
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { persistStore, persistReducer } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import productReducer from '../features/product/slices/product.slice';
-import productAdminReducer from '../features/admin/slices/product.admin.slice';
-import authReducer from '../features/auth/slices/auth.slice';
-import cartReducer from '../features/cart/slices/cart.slice';
+import productReducer from '@/features/product/slices/product.slice';
+import productAdminReducer from '@/features/admin/slices/product.admin.slice';
+import authReducer from '@/features/auth/slices/auth.slice';
+import cartReducer from '@/features/cart/slices/cart.slice';
 
 // Cấu hình persist cho auth
 const authPersistConfig = {

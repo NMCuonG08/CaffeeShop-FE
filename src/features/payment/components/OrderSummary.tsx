@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { type CartItem, type PaymentMethod, type ShippingInfo } from '../types/payment.type';
+import { type CartItem, type PaymentMethod, type ShippingInfo } from '@/features/payment/types';
 import { formatCurrency } from '@/utils/formatCurrency';
 import { useAuth } from '@/features/auth/hooks/useAuth';
 import {  showError } from '@/components';

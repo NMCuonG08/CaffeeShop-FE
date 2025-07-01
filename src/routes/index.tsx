@@ -1,13 +1,13 @@
 // src/routes/index.tsx
 import { createBrowserRouter } from 'react-router-dom';
-import Home from '../pages/Home';
-import ProductList from '../pages/product/ProductListPage';
-import NotFound from '../pages/NotFound';
+import Home from '@/pages/Home';
+import ProductList from '@/pages/product/ProductListPage';
+import NotFound from '@/pages/NotFound';
 
-import AuthCallback from '../features/auth/components/AuthCallback';
-import MainLayout from '../layouts/MainLayout';
-import AuthSignUpPage from '../pages/auth/AuthSignUpPage';
-import AuthLogInPage from '../pages/auth/AuthLogInPage';
+import AuthCallback from '@/features/auth/components/AuthCallback';
+import MainLayout from '@/layouts/MainLayout';
+import AuthSignUpPage from '@/pages/auth/AuthSignUpPage';
+import AuthLogInPage from '@/pages/auth/AuthLogInPage';
 import AdminLayout from '@/layouts/AdminLayout';
 import ListProductPage from '@/pages/admin/ListProductPage';
 import AnalyticsPage from '@/pages/admin/AnalyticsPage';

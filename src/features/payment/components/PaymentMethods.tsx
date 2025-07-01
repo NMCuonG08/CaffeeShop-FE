@@ -1,5 +1,5 @@
 import React from 'react';
-import {type PaymentMethod } from  '../types/payment.type';
+import {type PaymentMethod } from  '@/features/payment/types/payment.type';
 import vnp from '@/assets/imgs/vnpay.png'
 import momo from '@/assets/imgs/momo.png';
 import cod from '@/assets/imgs/cod.png';

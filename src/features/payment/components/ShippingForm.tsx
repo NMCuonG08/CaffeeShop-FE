@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { type ShippingInfo } from '../types/payment.type';
+import { type ShippingInfo } from '@/features/payment/types/payment.type';
 import { AlertCircle, MapPin, User, RefreshCw } from 'lucide-react';
 import { z } from 'zod';
 import { showError, showSuccess } from '@/components';
