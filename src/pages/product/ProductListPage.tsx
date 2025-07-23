@@ -24,7 +24,9 @@ interface QueryParams extends Filters {
 const ProductList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [currentPage, setCurrentPage] = useState(1);
+  // Lấy page từ URL, mặc định là 1 nếu không có
+  const initialPage = Number(searchParams.get('page')) || 1;
+  const [currentPage, setCurrentPage] = useState(initialPage);
   const [itemsPerPage] = useState(8);
 
   // Filter states
@@ -160,6 +162,15 @@ const ProductList: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+    // Cập nhật URL với page mới
+    const newSearchParams = new URLSearchParams();
+    (Object.entries(filters) as [keyof Filters, string][]).forEach(([key, val]) => {
+      if (val) {
+        newSearchParams.set(key, val);
+      }
+    });
+    newSearchParams.set('page', page.toString());
+    setSearchParams(newSearchParams);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

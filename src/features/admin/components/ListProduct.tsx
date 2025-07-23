@@ -104,8 +104,6 @@ const ListProduct = () => {
 
       const formData = new FormData();
       
-      // Add product ID for update
-      formData.append('product_id', data.product_id.toString());
       
       // Add form fields
       formData.append('product', data.product || '');

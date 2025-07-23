@@ -67,7 +67,10 @@ export const updateProduct = createAsyncThunk(
   async ({ formData, productId }: { formData: FormData, productId: string }) => {
     console.log("Product ID:", productId);
     try {
-      const response = await productAPI.updateProduct(formData, productId);
+    console.log('Updating product with ID:', productId);
+    for (let pair of formData.entries()) {
+      console.log(pair[0]+ ': ' + pair[1]);
+}      const response = await productAPI.updateProduct(formData, productId);
       return response;
     } catch (error) {
       console.error('Error updating product:', error);

@@ -40,6 +40,7 @@ export const fetchProducts = createAsyncThunk(
   async (params: FetchProductsParams): Promise<GetProductsResponse> => {
     console.log('Fetching products with params:', params);
     const response = await productAPI.getProducts(params);
+    console.log('Fetched products:', response);
     return response;
   }
 );

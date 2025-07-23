@@ -12,18 +12,53 @@ import {
   restoreAuth,
 } from '../slices/auth.slice';
 import type { FormSignUp } from '@/types';
+import { checkTokenExpiration } from '@/utils';
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
   const auth = useSelector((state: RootState) => state.auth);
 
-  // Restore auth khi app khởi động
-  useEffect(() => {
-    if (auth.token && !auth.user) {
-      dispatch(restoreAuth());
-      dispatch(getCurrentUser());
+  // Logout function - định nghĩa trước để sử dụng trong useEffect
+  const handleLogout = useCallback(async () => {
+    try {
+      await dispatch(logoutAction()).unwrap();
+      // Clear localStorage
+      localStorage.removeItem('token');
+      return { success: true };
+    } catch (error) {
+      // Vẫn clear auth state dù API logout fail
+      dispatch(clearAuth());
+      localStorage.removeItem('token');
+      return { success: false, error: error as string };
     }
-  }, [dispatch, auth.token, auth.user]);
+  }, [dispatch]);
+
+  // Kiểm tra token expiration mỗi khi token thay đổi
+  useEffect(() => {
+    if (auth.token) {
+      console.log("Checking token expiration:", auth.token);
+      const isTokenExpired = checkTokenExpiration(auth.token);
+      
+      if (isTokenExpired) {
+        console.log('Token expired, auto logout...');
+        dispatch(clearAuth());
+        localStorage.removeItem('token');
+      }
+    }
+  }, [auth.token, dispatch]);
+
+  // Restore auth khi có token hợp lệ nhưng chưa có user
+  useEffect(() => {
+    if (auth.token && !auth.user && !auth.loading) {
+      const isTokenExpired = checkTokenExpiration(auth.token);
+      
+      if (!isTokenExpired) {
+        console.log('Token valid, restoring user info...');
+        dispatch(restoreAuth());
+        dispatch(getCurrentUser());
+      }
+    }
+  }, [auth.token, auth.user, auth.loading, dispatch]);
 
   // Login function
   const handleLogin = useCallback(
@@ -50,21 +85,6 @@ export const useAuth = () => {
     },
     [dispatch]
   );
-
-  // Logout function
-  const handleLogout = useCallback(async () => {
-    try {
-      await dispatch(logoutAction()).unwrap();
-      // Clear localStorage
-      localStorage.removeItem('token');
-      return { success: true };
-    } catch (error) {
-      // Vẫn clear auth state dù API logout fail
-      dispatch(clearAuth());
-      localStorage.removeItem('token');
-      return { success: false, error: error as string };
-    }
-  }, [dispatch]);
 
   // Get current user
   const handleGetCurrentUser = useCallback(async () => {
@@ -101,6 +121,9 @@ export const useAuth = () => {
     },
     [auth.user]
   );
+  const hasPermission = (permission: string): boolean => {
+    return user?.permissions?.includes(permission) || false;
+  };
 
   // Check if user is admin (nếu cần)
   const isAdmin = useCallback(() => {
@@ -123,6 +146,7 @@ export const useAuth = () => {
     clearError: handleClearError,
     getCurrentUserByToken: handleGetCurrentUserByToken,
     // Utilities
+    hasPermission,
     hasRole,
     isAdmin,
   };

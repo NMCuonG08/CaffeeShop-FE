@@ -18,6 +18,7 @@ const breadcrumbNameMap :{ [key: string]: string } = {
   "/payment/failed": "Thanh toán thất bại",
   "/admin": "Quản trị",
   "/admin/products": "Quản lý sản phẩm",
+  "/unauthorized": "Không có quyền truy cập",
 };
 
 // Component riêng để handle product breadcrumb

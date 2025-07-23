@@ -184,7 +184,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <div className="flex items-center border rounded-lg">
             <button
               onClick={() => setQuantity(Math.max(1, quantity - 1))}
-              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-gray-100 hover:text-gray-950 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isAdding || loading || isOutOfStock}
             >
               -
@@ -194,7 +194,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             </span>
             <button
               onClick={() => setQuantity(Math.min(maxAvailableQuantity, quantity + 1))}
-              className="px-3 py-1 text-gray-800 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1 text-gray-100 hover:text-gray-950 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isAdding || loading || isOutOfStock || quantity >= maxAvailableQuantity}
             >
               +

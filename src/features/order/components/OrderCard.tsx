@@ -63,7 +63,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     formatDateShort(date);
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-900 overflow-hidden hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center justify-between mb-4">
@@ -109,7 +109,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
             {order.items.slice(0, 3).map((item) => (
               <div key={item.id} className="flex items-center space-x-2">
                 <img
-                  src={item.product?.product_image_cover || '/placeholder-product.jpg'}
+                  src={item.product?.image || '/placeholder-product.jpg'}
                   alt={item.product?.product || 'Product'}
                   className="w-12 h-12 rounded-lg object-cover"
                 />
@@ -172,7 +172,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                   <div key={item.id} className="p-4 flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <img
-                        src={item.product?.product_image_cover || '/placeholder-product.jpg'}
+                        src={item.product?.image || '/placeholder-product.jpg'}
                         alt={item.product?.product || 'Product'}
                         className="w-16 h-16 rounded-lg object-cover"
                       />

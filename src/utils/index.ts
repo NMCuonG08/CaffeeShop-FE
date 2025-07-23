@@ -2,3 +2,4 @@
 export * from './formatCurrency';
 export * from './payment';
 export * from './error';
+export * from './auth'

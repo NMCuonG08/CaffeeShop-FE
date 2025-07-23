@@ -1,9 +1,11 @@
-// src/routes/index.tsx
 import { createBrowserRouter } from 'react-router-dom';
+import { buildRoutes } from '@/guards/buildRoutes';
+import type { RouteConfig } from '@/types';
+
+// Components imports...
 import Home from '@/pages/Home';
 import ProductList from '@/pages/product/ProductListPage';
 import NotFound from '@/pages/NotFound';
-
 import AuthCallback from '@/features/auth/components/AuthCallback';
 import MainLayout from '@/layouts/MainLayout';
 import AuthSignUpPage from '@/pages/auth/AuthSignUpPage';
@@ -18,22 +20,31 @@ import OrderFailedPage from '@/pages/checkout/OrderFailedPage';
 import VNPayCallbackPage from '@/pages/checkout/VNPayCallbackPage';
 import OrdersPage from '@/pages/OrdersPage';
 import ProfilePage from '@/pages/ProfilePage';
-
 import AboutPage from '@/pages/AboutPage';
 import ContactPage from '@/pages/ContactPage';
-// import Login from '../pages/Login';
-// import ProductDetail from '../pages/ProductDetail';
+import Unauthorized from '@/pages/Unauthorized';
 
-const router = createBrowserRouter([
+const routesConfig: RouteConfig[] = [
   {
     path: '/',
     element: <MainLayout />,
     children: [
       { index: true, element: <Home /> },
-      { path: 'orders', element: <OrdersPage /> },
-      { path: 'profile', element: <ProfilePage /> },
+      { 
+        path: 'orders', 
+        element: <OrdersPage />,
+        guards: { auth: true }
+      },
+      { 
+        path: 'profile', 
+        element: <ProfilePage />,
+        guards: { auth: true }
+      },
       { path: 'about', element: <AboutPage /> },
       { path: 'contact', element: <ContactPage /> },
+      { path: 'unauthorized', element: <Unauthorized /> },
+        { path: 'forbidden', element: <Unauthorized /> },
+          { path: 'upgrade', element: <Unauthorized /> },
     ],
     errorElement: <NotFound />,
   },
@@ -41,7 +52,11 @@ const router = createBrowserRouter([
     path: '/checkout',
     element: <MainLayout />,
     children: [
-      { index: true, element: <CheckoutPage /> },
+      { 
+        index: true, 
+        element: <CheckoutPage />,
+        guards: { auth: true }
+      },
     ],
     errorElement: <NotFound />,
   },
@@ -49,7 +64,11 @@ const router = createBrowserRouter([
     path: '/order-success',
     element: <MainLayout />,
     children: [
-      { index: true, element: <OrderSuccessPage /> },
+      { 
+        index: true, 
+        element: <OrderSuccessPage />,
+        guards: { auth: true }
+      },
     ],
     errorElement: <NotFound />,
   },
@@ -74,31 +93,53 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    // element: <AdminRoute />,
+    element: <AdminLayout />,
     children: [
-      {
-        path: '',
-        element: <AdminLayout />, 
-        children: [
-          // { index: true, element: <ListProductPage /> },
-           { path: 'products', element: <ListProductPage /> },
-           { path: 'analytics', element: <AnalyticsPage /> },
-        ],
-        errorElement: <NotFound />,
+      { 
+        path: 'products', 
+        element: <ListProductPage />,
+        guards: { 
+          auth: true, 
+          roles: ['ADMIN'],
+          
+        }
+      },
+      { 
+        path: 'analytics', 
+        element: <AnalyticsPage />,
+        guards: { 
+          auth: true, 
+          roles: 'admin',
+          subscription: 'premium'
+        }
       },
     ],
+    errorElement: <NotFound />,
   },
   {
     path: '/payment',
     element: <MainLayout />,
     children: [
-      { path: 'success', element: <OrderSuccessPage/> },
-      { path: 'failed', element: <OrderFailedPage /> },
-      { path: 'vnpay-callback', element: <VNPayCallbackPage /> },
+      { 
+        path: 'success', 
+        element: <OrderSuccessPage />,
+        guards: { auth: true }
+      },
+      { 
+        path: 'failed', 
+        element: <OrderFailedPage />,
+        guards: { auth: true }
+      },
+      { 
+        path: 'vnpay-callback', 
+        element: <VNPayCallbackPage />,
+        guards: { auth: true }
+      },
     ],
     errorElement: <NotFound />,
   },
-])
+];
 
+const router = createBrowserRouter(buildRoutes(routesConfig));
 
 export default router;

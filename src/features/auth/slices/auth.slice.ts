@@ -9,7 +9,7 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
-   roles: string[] | null; 
+  roles: string[] | null; 
   picture?: string;
 }
 
@@ -45,6 +45,8 @@ export const login = createAsyncThunk(
       }
 
       const { user, token } = response.data.data;
+
+      console.log('🚀 Calling login with:', user.roles);
       const accessToken = token.access_token || token;
       
       // Set token for API client
@@ -163,8 +165,7 @@ export const getUserByToken = createAsyncThunk(
       };
     } catch (error) {
       console.error('❌ getUserByToken error:', error);
-      
-      // Clear token on error
+
       setAuthToken(null);
       
      if (error instanceof AxiosError) {

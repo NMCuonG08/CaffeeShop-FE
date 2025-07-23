@@ -12,12 +12,12 @@ export const getProducts = async (params: ProductParams): Promise<ProductListRes
     params:params
   } );
   
-  if (!response.data?.data?.products) {
+  if (!response.data?.data?.items) {
   throw new Error('Invalid API response structure');
 }
   return {
-    products: response.data.data.products,
-    totalProducts: response.data.data.total || 0,
+    products: response.data.data.items,
+    totalProducts: response.data.data.pagination.total || 0,
   }
 };
 
